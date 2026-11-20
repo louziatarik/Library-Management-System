@@ -1,12 +1,24 @@
 
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
+  ArrowLeft,
   BookOpen,
   LibraryBig,
   Sparkles,
   LogIn,
   UserPlus,
+  CheckCircle2,
+  Clock3,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
+import { books } from "../data/books";
+
+// ----------------------------------
+// FEATURES
+// ----------------------------------
 
 const features = [
   {
@@ -32,6 +44,447 @@ const features = [
   },
 ];
 
+// ----------------------------------
+// BOOK COLORS
+// ----------------------------------
+
+const bookColors = [
+  "#A9D7D0",
+  "#F5C96A",
+  "#D8C5EA",
+  "#E7B7A4",
+  "#C5D8B8",
+  "#F2C8D8",
+];
+
+// ----------------------------------
+// 3D BOOK COMPONENT
+// ----------------------------------
+
+function CarouselBook({ book, active }) {
+  const [failedUrl, setFailedUrl] = useState(null);
+
+  const coverUrl =
+    book.cover ||
+    (book.isbn
+      ? `https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg?default=false`
+      : null);
+
+  const imageFailed =
+    !coverUrl || failedUrl === coverUrl;
+
+  return (
+    <div
+      className={`booknest-carousel-float relative h-full w-full ${
+        active ? "booknest-carousel-float-active" : ""
+      }`}
+      style={{
+        transformStyle: "preserve-3d",
+      }}
+    >
+      {/* BOOK BODY */}
+      <div
+        className="relative h-full w-full"
+        style={{
+          transformStyle: "preserve-3d",
+        }}
+      >
+        {/* BACK COVER */}
+<div
+  className="absolute inset-0 rounded-[5px] bg-[#173A2D]"
+  style={{
+    transform: "translateZ(-10px) rotateY(180deg)",
+    backfaceVisibility: "hidden",
+    WebkitBackfaceVisibility: "hidden",
+  }}
+/>
+
+        {/* BOOK SPINE */}
+        <div
+          className="absolute bottom-0 left-0 top-0 w-[20px] rounded-l-[4px]"
+          style={{
+            background:
+              "linear-gradient(90deg, #102A20 0%, #426B58 48%, #102A20 100%)",
+            transform:
+              "translateX(-10px) rotateY(-90deg)",
+            transformOrigin: "right center",
+          }}
+        />
+
+        {/* PAGE EDGES */}
+        <div
+          className="absolute bottom-[5px] right-[-8px] top-[5px] w-[17px] rounded-r-[3px]"
+          style={{
+            background:
+              "repeating-linear-gradient(to bottom, #fffdf5 0px, #fffdf5 2px, #ddd8c9 3px)",
+            transform: "rotateY(45deg)",
+          }}
+        />
+
+        {/* FRONT COVER */}
+        <div
+  className="absolute inset-0 overflow-hidden rounded-l-[3px] rounded-r-[6px] bg-[#F7F5F0]"
+  style={{
+    transform: "translateZ(10px)",
+    backfaceVisibility: "hidden",
+    WebkitBackfaceVisibility: "hidden",
+    boxShadow:
+      "inset 7px 0 10px rgba(0,0,0,0.18), 5px 8px 15px rgba(0,0,0,0.18)",
+  }}
+>
+          {!imageFailed ? (
+            <img
+              src={coverUrl}
+              alt={`Cover of ${book.title}`}
+              loading="lazy"
+              onError={() => setFailedUrl(coverUrl)}
+              className="h-full w-full object-fill"
+            />
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center bg-[#F7F5F0] p-4 text-center">
+              <BookOpen
+                size={36}
+                className="mb-5 text-[#123D30]"
+              />
+
+              <span className="text-sm font-extrabold leading-tight text-[#123D30]">
+                {book.title}
+              </span>
+
+              <span className="mt-3 text-xs text-[#85817B]">
+                {book.author}
+              </span>
+            </div>
+          )}
+
+          {/* SPINE SHADOW */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-[12px] bg-gradient-to-r from-black/30 to-transparent" />
+
+          {/* LIGHT REFLECTION */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ----------------------------------
+// FEATURED BOOKS CAROUSEL
+// ----------------------------------
+
+function FeaturedBooksCarousel({ onExplore }) {
+  const featuredBooks = books.slice(0, 6);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [autoPlay, setAutoPlay] = useState(true);
+
+  const total = featuredBooks.length;
+
+  const activeBook = featuredBooks[activeIndex];
+
+  // ----------------------------------
+  // AUTOPLAY
+  // ----------------------------------
+
+  useEffect(() => {
+    if (!autoPlay || total <= 1) return;
+
+    const interval = setInterval(() => {
+      setActiveIndex((previous) =>
+        (previous + 1) % total
+      );
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, [autoPlay, total]);
+
+  // ----------------------------------
+  // NAVIGATION
+  // ----------------------------------
+
+  const goNext = () => {
+    setActiveIndex((previous) =>
+      (previous + 1) % total
+    );
+  };
+
+  const goPrevious = () => {
+    setActiveIndex((previous) =>
+      (previous - 1 + total) % total
+    );
+  };
+
+  const selectBook = (index) => {
+    setActiveIndex(index);
+  };
+
+  // ----------------------------------
+  // POSITION CALCULATION
+  // ----------------------------------
+
+  const getPosition = (index) => {
+    let offset = index - activeIndex;
+
+    if (offset > total / 2) {
+      offset -= total;
+    }
+
+    if (offset < -total / 2) {
+      offset += total;
+    }
+
+    return offset;
+  };
+
+  if (!activeBook) return null;
+
+  return (
+    <section
+      className="relative overflow-hidden border-t border-[#EAE5DB] bg-[#FFFDF8] px-4 py-20 sm:px-6 md:px-10"
+      onMouseEnter={() => setAutoPlay(false)}
+      onMouseLeave={() => setAutoPlay(true)}
+      aria-label="Featured books carousel"
+    >
+      <div className="mx-auto max-w-7xl">
+        {/* SECTION HEADER */}
+        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.24em] text-[#267458]">
+              Handpicked for curious minds
+            </p>
+
+            <h2 className="text-3xl font-black uppercase leading-tight tracking-tight text-[#123D30] sm:text-4xl lg:text-5xl">
+              Books you can't
+              <br />
+              miss this month.
+            </h2>
+          </div>
+
+          <div className="max-w-sm">
+            <p className="text-sm leading-7 text-[#737770]">
+              Discover the books shaping curious
+              minds. Explore programming,
+              technology, design, and more
+              through our growing collection.
+            </p>
+
+            <button
+              type="button"
+              onClick={onExplore}
+              className="mt-5 inline-flex items-center gap-2 rounded-full border border-[#123D30] px-5 py-3 text-sm font-bold text-[#123D30] transition hover:bg-[#123D30] hover:text-white"
+            >
+              View All Books
+              <ArrowRight size={17} />
+            </button>
+          </div>
+        </div>
+
+        {/* CAROUSEL STAGE */}
+        <div className="relative overflow-hidden rounded-[32px] bg-[#F3EFE5]">
+          {/* GRID BACKGROUND */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-35"
+            style={{
+              backgroundImage:
+                "linear-gradient(#C9C4B8 1px, transparent 1px), linear-gradient(90deg, #C9C4B8 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
+            }}
+          />
+
+          {/* BACKGROUND CIRCLES */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[440px] w-[440px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#D7CCB7]" />
+
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[330px] w-[330px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#D7CCB7]" />
+
+          {/* TOP LABEL */}
+          <div className="relative z-10 flex items-center justify-between px-6 pt-7 sm:px-9">
+            <span className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-[#55736C]">
+              The BookNest Collection
+            </span>
+
+            <span className="rounded-full border border-[#CFC8B8] bg-white/70 px-4 py-2 text-xs font-bold text-[#123D30]">
+              {String(activeIndex + 1).padStart(2, "0")}
+              {" / "}
+              {String(total).padStart(2, "0")}
+            </span>
+          </div>
+
+          {/* 3D CAROUSEL */}
+          <div
+className="relative mx-auto h-[430px] max-w-5xl sm:h-[500px] md:h-[560px]"            style={{
+              perspective: "1200px",
+            }}
+          >
+            {/* GROUND SHADOW */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute bottom-7 left-1/2 h-10 w-[65%] -translate-x-1/2 rounded-full bg-[#123D30]/15 blur-2xl"
+            />
+
+            {featuredBooks.map((book, index) => {
+              const offset = getPosition(index);
+              const distance = Math.abs(offset);
+
+              const hidden = distance > 2;
+
+const translateX = offset * 60;
+const rotateY = offset * -15;
+const rotateZ = offset * -4;
+const scale = 1 - distance * 0.12;
+const translateZ = -distance * 40;
+const translateY = distance * 10;
+              return (
+                <button
+                  key={book.id}
+                  type="button"
+                  onClick={() => selectBook(index)}
+                  aria-label={`Select ${book.title}`}
+                  aria-pressed={index === activeIndex}
+                  tabIndex={hidden ? -1 : 0}
+                  className="absolute left-1/2 top-1/2 h-[205px] w-[145px] origin-center cursor-pointer border-0 bg-transparent p-0 transition-[transform,opacity] duration-700 ease-in-out sm:h-[270px] sm:w-[190px] md:h-[320px] md:w-[225px]"
+                  style={{
+                    transform: `
+                      translate(-50%, -50%)
+                      translateX(${translateX}%)
+                      translateY(${translateY}px)
+                      translateZ(${translateZ}px)
+                      rotateY(${rotateY}deg)
+                      rotateZ(${rotateZ}deg)
+                      scale(${scale})
+                    `,
+                    transformStyle: "preserve-3d",
+                    zIndex: 20 - distance,
+                    opacity: hidden ? 0 : 1,
+                    pointerEvents: hidden
+                      ? "none"
+                      : "auto",
+                  }}
+                >
+                  <CarouselBook
+                    key={`${book.id}-${book.cover || book.isbn}`}
+                    book={book}
+                    active={index === activeIndex}
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* SELECTED BOOK INFORMATION */}
+          <div className="relative z-10 mx-auto max-w-2xl px-6 pb-9 text-center">
+            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#267458]">
+              {activeBook.category}
+            </p>
+
+            <h3 className="mt-3 text-2xl font-black text-[#123D30] sm:text-3xl">
+              {activeBook.title}
+            </h3>
+
+            <p className="mt-2 text-sm text-[#85817B]">
+              by {activeBook.author}
+            </p>
+
+            <div className="mt-4 flex items-center justify-center gap-2">
+              {activeBook.available ? (
+                <>
+                  <CheckCircle2
+                    size={16}
+                    className="text-[#27816B]"
+                  />
+                  <span className="text-sm font-semibold text-[#27816B]">
+                    Available to borrow
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Clock3
+                    size={16}
+                    className="text-[#C17742]"
+                  />
+                  <span className="text-sm font-semibold text-[#C17742]">
+                    Currently unavailable
+                  </span>
+                </>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={onExplore}
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#123D30] px-7 py-3.5 text-sm font-bold text-white transition hover:bg-[#1C5846]"
+            >
+              Explore This Book
+              <ArrowRight size={17} />
+            </button>
+
+            {/* CAROUSEL CONTROLS */}
+            <div className="mt-7 flex items-center justify-center gap-5">
+              <button
+                type="button"
+                onClick={goPrevious}
+                aria-label="Previous book"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-[#CFC8B8] bg-white text-[#123D30] transition hover:bg-[#123D30] hover:text-white"
+              >
+                <ChevronLeft size={22} />
+              </button>
+
+              <div className="flex items-center gap-2">
+                {featuredBooks.map((book, index) => (
+                  <button
+                    key={book.id}
+                    type="button"
+                    onClick={() => selectBook(index)}
+                    aria-label={`Go to ${book.title}`}
+                    aria-current={
+                      index === activeIndex
+                        ? "true"
+                        : undefined
+                    }
+                    className={`h-2.5 rounded-full transition-all duration-300 ${
+                      index === activeIndex
+                        ? "w-8 bg-[#123D30]"
+                        : "w-2.5 bg-[#B9B6AA] hover:bg-[#55736C]"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={goNext}
+                aria-label="Next book"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-[#CFC8B8] bg-white text-[#123D30] transition hover:bg-[#123D30] hover:text-white"
+              >
+                <ChevronRight size={22} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION FOOTER */}
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-sm text-[#85817B]">
+            A curated selection from our library.
+          </p>
+
+          <button
+            type="button"
+            onClick={onExplore}
+            className="inline-flex items-center gap-2 text-sm font-bold text-[#123D30] transition hover:text-[#27816B]"
+          >
+            Browse Full Collection
+            <ArrowRight size={17} />
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ----------------------------------
+// LANDING PAGE
+// ----------------------------------
+
 export default function LandingPage({
   onExplore,
   onLogin,
@@ -41,13 +494,41 @@ export default function LandingPage({
     <div className="min-h-screen overflow-hidden bg-[#F7F5F0] text-[#292929]">
       <style>{`
         @keyframes bookFloat {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-12px); }
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-12px);
+          }
         }
 
         @keyframes softGlow {
-          0%, 100% { opacity: 0.5; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.08); }
+          0%, 100% {
+            opacity: 0.5;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.08);
+          }
+        }
+
+        @keyframes carouselFloat {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+
+        @keyframes carouselFloatActive {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-16px);
+          }
         }
 
         .booknest-floating {
@@ -58,15 +539,25 @@ export default function LandingPage({
           animation: softGlow 7s ease-in-out infinite;
         }
 
+        .booknest-carousel-float {
+          animation: carouselFloat 5s ease-in-out infinite;
+        }
+
+        .booknest-carousel-float-active {
+          animation: carouselFloatActive 4s ease-in-out infinite;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .booknest-floating,
-          .booknest-glow {
-            animation: none;
+          .booknest-glow,
+          .booknest-carousel-float,
+          .booknest-carousel-float-active {
+            animation: none !important;
           }
         }
       `}</style>
 
-      {/* Navigation */}
+      {/* NAVIGATION */}
       <header className="relative z-20 mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-6 md:px-10">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#123D30] text-[#F5C96A]">
@@ -107,10 +598,10 @@ export default function LandingPage({
         </div>
       </header>
 
-      {/* Hero */}
       <main>
+        {/* HERO */}
         <section className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pb-16 pt-8 text-center md:px-10">
-          {/* Background decorations */}
+          {/* BACKGROUND DECORATIONS */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute left-[-140px] top-16 h-80 w-80 rounded-full bg-[#A9D7D0]/35 blur-3xl"
@@ -130,32 +621,32 @@ export default function LandingPage({
           </h1>
 
           <p className="relative z-10 mt-7 max-w-2xl text-base leading-8 text-[#5F625C] sm:text-lg">
-            A universe of stories, knowledge, and inspiration.
-            Discover books, follow your curiosity, and make every
-            chapter count.
+            A universe of stories, knowledge,
+            and inspiration. Discover books,
+            follow your curiosity, and make
+            every chapter count.
           </p>
 
-          {/* Floating book */}
+          {/* FLOATING HERO BOOK */}
           <div className="relative my-4 flex w-full max-w-3xl items-center justify-center py-2 sm:my-5">
-            {/* Warm golden glow */}
+            {/* GOLDEN GLOW */}
             <div
               aria-hidden="true"
               className="booknest-glow pointer-events-none absolute h-48 w-[75%] rounded-full bg-[#F5C96A]/35 blur-[65px]"
             />
 
-            {/* Mint ambient lighting */}
+            {/* MINT LIGHTING */}
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -left-8 top-1/4 h-40 w-40 rounded-full bg-[#A9D7D0]/30 blur-3xl"
             />
 
-            {/* Shadow beneath the book */}
+            {/* SHADOW */}
             <div
               aria-hidden="true"
               className="absolute bottom-3 h-8 w-[65%] rounded-full bg-[#123D30]/15 blur-2xl"
             />
 
-            {/* Floating image */}
             <img
               src="/booknest-hero.png"
               alt="Realistic open book with emerald-green cover and golden details"
@@ -164,7 +655,7 @@ export default function LandingPage({
             />
           </div>
 
-          {/* Main CTA */}
+          {/* HERO CTA */}
           <button
             type="button"
             onClick={onExplore}
@@ -183,7 +674,12 @@ export default function LandingPage({
           </span>
         </section>
 
-        {/* Features */}
+        {/* INTERACTIVE 3D FEATURED BOOKS */}
+        <FeaturedBooksCarousel
+          onExplore={onExplore}
+        />
+
+        {/* EXISTING FEATURES */}
         <section className="border-t border-[#EAE5DB] bg-white/60 px-6 py-20 md:px-10">
           <div className="mx-auto max-w-7xl">
             <div className="mb-12 text-center">
@@ -198,14 +694,21 @@ export default function LandingPage({
 
             <div className="grid gap-6 md:grid-cols-3">
               {features.map(
-                ({ icon: Icon, title, description, color }) => (
+                ({
+                  icon: Icon,
+                  title,
+                  description,
+                  color,
+                }) => (
                   <div
                     key={title}
                     className="rounded-[28px] border border-[#EEEAE4] bg-white p-8 shadow-[0_12px_35px_rgba(35,48,38,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                   >
                     <div
                       className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl"
-                      style={{ backgroundColor: color }}
+                      style={{
+                        backgroundColor: color,
+                      }}
                     >
                       <Icon
                         size={25}
@@ -228,8 +731,11 @@ export default function LandingPage({
         </section>
       </main>
 
+      {/* FOOTER */}
       <footer className="bg-[#123D30] px-6 py-8 text-center text-xs tracking-[0.15em] text-[#F7F5F0]">
-        © {new Date().getFullYear()} BOOKNEST — MADE FOR DISCOVERY
+        © {new Date().getFullYear()} BOOKNEST
+        {" — "}
+        MADE FOR DISCOVERY
       </footer>
     </div>
   );
