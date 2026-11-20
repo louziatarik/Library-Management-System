@@ -8,13 +8,15 @@ import {
 } from "lucide-react";
 
 export default function RoleSelection({
+  mode = "login",
   onStudent,
   onAdmin,
   onBack,
 }) {
+  const isRegister = mode === "register";
+
   return (
     <div className="min-h-screen bg-[#F7F5F0] flex flex-col">
-      {/* HEADER */}
       <header className="px-6 py-5 md:px-12">
         <button
           type="button"
@@ -24,14 +26,10 @@ export default function RoleSelection({
           <div className="w-11 h-11 bg-[#F5C96A] rounded-xl flex items-center justify-center">
             <BookOpen size={23} />
           </div>
-
-          <span className="text-xl font-extrabold">
-            BookNest
-          </span>
+          <span className="text-xl font-extrabold">BookNest</span>
         </button>
       </header>
 
-      {/* MAIN CONTENT */}
       <main className="flex-1 flex items-center justify-center px-5 py-12">
         <div className="w-full max-w-4xl">
           <div className="text-center mb-12">
@@ -40,7 +38,9 @@ export default function RoleSelection({
             </span>
 
             <h1 className="text-3xl md:text-5xl font-extrabold text-[#292929] mt-5">
-              How would you like to sign in?
+              {isRegister
+                ? "How would you like to create your account?"
+                : "How would you like to sign in?"}
             </h1>
 
             <p className="text-[#85817B] mt-4">
@@ -48,7 +48,6 @@ export default function RoleSelection({
             </p>
           </div>
 
-          {/* ROLE CARDS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* STUDENT */}
             <button
@@ -68,13 +67,16 @@ export default function RoleSelection({
               </h2>
 
               <p className="text-[#85817B] mt-3 leading-relaxed">
-                Explore books, borrow from the library,
-                track your loans, and manage your profile.
+                {isRegister
+                  ? "Create your student account to explore books, borrow from the library, and track your loans."
+                  : "Explore books, borrow from the library, track your loans, and manage your profile."}
               </p>
 
               <div className="flex items-center justify-between mt-10">
                 <span className="font-bold text-[#A67C28]">
-                  Continue as Student
+                  {isRegister
+                    ? "Register as Student"
+                    : "Continue as Student"}
                 </span>
 
                 <ArrowRight
@@ -108,7 +110,9 @@ export default function RoleSelection({
 
               <div className="flex items-center justify-between mt-10">
                 <span className="font-bold text-[#276C64]">
-                  Continue as Admin
+                  {isRegister
+                    ? "Administrator Login Only"
+                    : "Continue as Admin"}
                 </span>
 
                 <ArrowRight
@@ -118,6 +122,13 @@ export default function RoleSelection({
               </div>
             </button>
           </div>
+
+          {isRegister && (
+            <p className="text-center text-xs text-[#85817B] mt-6">
+              Administrator accounts cannot be created publicly.
+              Contact the system administrator for access.
+            </p>
+          )}
 
           <button
             type="button"

@@ -55,3 +55,10 @@ export const books = [
     description: "An introduction to intuitive web usability and design."
   }
 ];
+
+const getBookCover = (isbn) =>
+  `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`;
+
+books.forEach((book) => {
+  book.cover = getBookCover(book.isbn);
+});

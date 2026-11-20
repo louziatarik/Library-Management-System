@@ -33,7 +33,7 @@ export default function AdminSidebar({
     type="button"
     onClick={onGoHome}
     aria-label="Return to BookNest landing page"
-    className="flex w-full items-center gap-3 rounded-2xl text-left transition-opacity duration-200 hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#276C64]"
+    className="flex w-full items-center gap-3 rounded-2xl text-left transition-opacity duration-200 hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#A66B00]"
   >
           <div className="w-12 h-12 bg-[#F5C96A] rounded-2xl flex items-center justify-center">
             <BookOpen size={25} className="text-[#292929]" />
@@ -42,7 +42,7 @@ export default function AdminSidebar({
           <div>
             <h1 className="text-xl font-extrabold text-[#292929] tracking-tight">
               BookNest
-              <span className="text-[#E8A6A1]">.</span>
+              <span className="text-[#E8B44D]">.</span>
             </h1>
 
             <p className="text-[10px] uppercase tracking-[2px] text-[#9B978F] font-bold">
@@ -90,9 +90,9 @@ export default function AdminSidebar({
 
       {/* ADMIN INFO */}
       <div className="px-4 pb-5">
-        <div className="bg-[#E9F4F0] rounded-2xl p-4 mb-6">
-          <div className="w-10 h-10 bg-[#A9D7D0] rounded-xl flex items-center justify-center mb-3">
-            <ShieldCheck size={22} className="text-[#276C64]" />
+        <div className="bg-[#FFF5D9] rounded-2xl p-4 mb-6">
+          <div className="w-10 h-10 bg-[#F5C96A] rounded-xl flex items-center justify-center mb-3">
+            <ShieldCheck size={22} className="text-[#A66B00]" />
           </div>
 
           <h3 className="text-sm font-bold text-[#292929]">
@@ -108,8 +108,8 @@ export default function AdminSidebar({
         {/* ACCOUNT */}
         <div className="border-t border-[#EEEAE4] pt-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#E8A6A1] flex items-center justify-center">
-              <ShieldCheck size={20} className="text-[#6D3433]" />
+            <div className="w-10 h-10 rounded-xl bg-[#E8B44D] flex items-center justify-center">
+              <ShieldCheck size={20} className="text-[#805500]" />
             </div>
 
             <div className="flex-1 min-w-0">

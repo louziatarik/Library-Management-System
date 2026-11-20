@@ -10,8 +10,14 @@ import {
   Info,
 } from "lucide-react";
 
-// Temporary demo records.
-// These are used until shared loan state is passed from App.jsx.
+import { books } from "../data/books";
+
+// ----------------------------------
+// TEMPORARY DEMO LOANS
+// ----------------------------------
+// Used only when no loans prop is provided.
+// App.jsx currently passes shared loan state.
+
 const demoLoans = [
   {
     id: 1,
@@ -65,6 +71,60 @@ const demoLoans = [
   },
 ];
 
+// ----------------------------------
+// REAL BOOK COVER COMPONENT
+// ----------------------------------
+
+function LoanBookCover({ loan }) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  // Find the matching book using ID or title.
+  const matchingBook = books.find(
+    (book) =>
+      (loan.bookId != null &&
+        String(book.id) === String(loan.bookId)) ||
+      book.title.trim().toLowerCase() ===
+        String(loan.title || "").trim().toLowerCase()
+  );
+
+  const isbn = loan.isbn || matchingBook?.isbn;
+
+  const coverUrl =
+    loan.cover ||
+    matchingBook?.cover ||
+    (isbn
+      ? `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false`
+      : null);
+
+  return (
+    <div
+      style={{
+        backgroundColor: loan.color || "#A9D7D0",
+      }}
+      className="flex h-24 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl p-2"
+    >
+      {coverUrl && !imageFailed ? (
+        <img
+          src={coverUrl}
+          alt={`Cover of ${loan.title}`}
+          loading="lazy"
+          onError={() => setImageFailed(true)}
+          className="max-h-full max-w-full object-contain rounded-sm shadow-md"
+        />
+      ) : (
+        <BookOpen
+          size={32}
+          className="text-[#292929]"
+        />
+      )}
+    </div>
+  );
+}
+
+// ----------------------------------
+// DATE HELPERS
+// ----------------------------------
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 function daysUntil(dateString) {
@@ -78,27 +138,42 @@ function daysUntil(dateString) {
     today.getDate()
   );
 
-  const [year, month, day] = dateString.split("-").map(Number);
+  const [year, month, day] = dateString
+    .split("-")
+    .map(Number);
 
-  const dueUTC = Date.UTC(year, month - 1, day);
+  const dueUTC = Date.UTC(
+    year,
+    month - 1,
+    day
+  );
 
-  return Math.round((dueUTC - todayUTC) / MS_PER_DAY);
+  return Math.round(
+    (dueUTC - todayUTC) / MS_PER_DAY
+  );
 }
 
 function formatDate(dateString) {
   if (!dateString) return "—";
 
-  const [year, month, day] = dateString.split("-").map(Number);
+  const [year, month, day] = dateString
+    .split("-")
+    .map(Number);
 
-  return new Date(year, month - 1, day).toLocaleDateString(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }
-  );
+  return new Date(
+    year,
+    month - 1,
+    day
+  ).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
+
+// ----------------------------------
+// LOAN STATUS
+// ----------------------------------
 
 function getLoanStatus(loan) {
   if (loan.status === "Returned") {
@@ -134,13 +209,20 @@ function getLoanStatus(loan) {
   };
 }
 
+// ----------------------------------
+// MY LOANS PAGE
+// ----------------------------------
+
 export default function MyLoans({
   loans = demoLoans,
   onReturn,
 }) {
   const [filter, setFilter] = useState("All Loans");
 
-  // Shared loan data
+  // ----------------------------------
+  // LOAN STATISTICS
+  // ----------------------------------
+
   const activeLoans = loans.filter(
     (loan) => loan.status === "Active"
   );
@@ -149,14 +231,20 @@ export default function MyLoans({
     (loan) => loan.status === "Returned"
   );
 
-  const dueSoonLoans = activeLoans.filter((loan) => {
-    const days = daysUntil(loan.dueDate);
-    return days >= 0 && days <= 5;
-  });
+  const dueSoonLoans = activeLoans.filter(
+    (loan) => {
+      const days = daysUntil(loan.dueDate);
+      return days >= 0 && days <= 5;
+    }
+  );
 
   const overdueLoans = activeLoans.filter(
     (loan) => daysUntil(loan.dueDate) < 0
   );
+
+  // ----------------------------------
+  // FILTER LOANS
+  // ----------------------------------
 
   const filteredLoans = loans.filter((loan) => {
     if (filter === "Active") {
@@ -195,31 +283,34 @@ export default function MyLoans({
     <div className="space-y-8">
       {/* HEADER */}
       <header>
-        <p className="text-[#A29A90] text-sm font-medium">
+        <p className="text-sm font-medium text-[#A29A90]">
           Student Library / Borrowing
         </p>
 
-        <h1 className="text-3xl font-bold text-[#292929] mt-1">
+        <h1 className="mt-1 text-3xl font-bold text-[#292929]">
           My Loans
         </h1>
 
-        <p className="text-[#85817B] text-sm mt-2">
-          Track your borrowed books, due dates, and reading history.
+        <p className="mt-2 text-sm text-[#85817B]">
+          Track your borrowed books, due dates,
+          and reading history.
         </p>
       </header>
 
       {/* SUMMARY CARDS */}
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+      <section className="grid grid-cols-1 gap-5 sm:grid-cols-3">
         {stats.map((stat) => {
           const Icon = stat.icon;
 
           return (
             <div
               key={stat.label}
-              style={{ backgroundColor: stat.color }}
-              className="rounded-[24px] p-6 min-h-40 flex flex-col justify-between"
+              style={{
+                backgroundColor: stat.color,
+              }}
+              className="flex min-h-40 flex-col justify-between rounded-[24px] p-6"
             >
-              <div className="w-11 h-11 bg-white/50 rounded-xl flex items-center justify-center">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/50">
                 <Icon
                   size={22}
                   className="text-[#292929]"
@@ -231,7 +322,7 @@ export default function MyLoans({
                   {stat.value}
                 </h2>
 
-                <p className="text-sm text-[#625B55] mt-1">
+                <p className="mt-1 text-sm text-[#625B55]">
                   {stat.label}
                 </p>
               </div>
@@ -243,8 +334,8 @@ export default function MyLoans({
       {/* LOAN ALERTS */}
       {(dueSoonLoans.length > 0 ||
         overdueLoans.length > 0) && (
-        <section className="bg-[#FFF1D8] rounded-[24px] p-5 flex items-start gap-4">
-          <div className="w-11 h-11 bg-white/60 rounded-xl flex items-center justify-center shrink-0">
+        <section className="flex items-start gap-4 rounded-[24px] bg-[#FFF1D8] p-5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/60">
             <Clock3
               size={22}
               className="text-[#A46A20]"
@@ -256,7 +347,7 @@ export default function MyLoans({
               Return Date Reminder
             </h2>
 
-            <p className="text-sm text-[#8A7048] mt-1 leading-relaxed">
+            <p className="mt-1 text-sm leading-relaxed text-[#8A7048]">
               {overdueLoans.length > 0
                 ? `You have ${overdueLoans.length} overdue book(s). Please check their return dates.`
                 : `You have ${dueSoonLoans.length} book(s) due within the next 5 days.`}
@@ -266,8 +357,8 @@ export default function MyLoans({
       )}
 
       {/* LOAN HISTORY */}
-      <section className="bg-white border border-[#EEEAE4] rounded-[28px] p-5 md:p-8">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-7">
+      <section className="rounded-[28px] border border-[#EEEAE4] bg-white p-5 md:p-8">
+        <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <History
@@ -280,30 +371,32 @@ export default function MyLoans({
               </h2>
             </div>
 
-            <p className="text-sm text-[#85817B] mt-2">
+            <p className="mt-2 text-sm text-[#85817B]">
               View your current and previous book loans.
             </p>
           </div>
 
           {/* FILTERS */}
           <div className="flex flex-wrap gap-2">
-            {["All Loans", "Active", "Returned"].map(
-              (item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setFilter(item)}
-                  aria-pressed={filter === item}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
-                    filter === item
-                      ? "bg-[#F5C96A] text-[#292929]"
-                      : "bg-[#F7F5F0] text-[#85817B] hover:text-[#292929]"
-                  }`}
-                >
-                  {item}
-                </button>
-              )
-            )}
+            {[
+              "All Loans",
+              "Active",
+              "Returned",
+            ].map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setFilter(item)}
+                aria-pressed={filter === item}
+                className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
+                  filter === item
+                    ? "bg-[#F5C96A] text-[#292929]"
+                    : "bg-[#F7F5F0] text-[#85817B] hover:text-[#292929]"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -315,50 +408,49 @@ export default function MyLoans({
             return (
               <article
                 key={loan.id}
-                className="border border-[#EEEAE4] rounded-[20px] p-4 md:p-5"
+                className="rounded-[20px] border border-[#EEEAE4] p-4 md:p-5"
               >
-                <div className="flex flex-col md:flex-row md:items-center gap-5">
-                  {/* BOOK COVER */}
-                  <div
-                    style={{
-                      backgroundColor:
-                        loan.color || "#A9D7D0",
-                    }}
-                    className="w-20 h-24 rounded-xl flex items-center justify-center shrink-0"
-                  >
-                    <BookOpen
-                      size={32}
-                      className="text-[#292929]"
-                    />
-                  </div>
+                <div className="flex flex-col gap-5 md:flex-row md:items-center">
+                  {/* REAL BOOK COVER */}
+                  <LoanBookCover
+                    key={`${loan.id}-${loan.cover || loan.isbn || loan.bookId || loan.title}`}
+                    loan={loan}
+                  />
 
                   {/* BOOK INFORMATION */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-[#292929] text-base">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base font-bold text-[#292929]">
                       {loan.title}
                     </h3>
 
-                    <p className="text-sm text-[#85817B] mt-1">
+                    <p className="mt-1 text-sm text-[#85817B]">
                       {loan.author}
                     </p>
 
-                    <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4">
+                    <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
                       <span className="flex items-center gap-2 text-xs text-[#777D78]">
                         <CalendarDays size={15} />
                         Borrowed:{" "}
-                        {formatDate(loan.borrowedDate)}
+                        {formatDate(
+                          loan.borrowedDate
+                        )}
                       </span>
 
                       <span className="flex items-center gap-2 text-xs text-[#777D78]">
                         <Clock3 size={15} />
-                        Due: {formatDate(loan.dueDate)}
+                        Due:{" "}
+                        {formatDate(
+                          loan.dueDate
+                        )}
                       </span>
 
                       {loan.returnedDate && (
                         <span className="flex items-center gap-2 text-xs text-[#27816B]">
                           <CheckCircle2 size={15} />
                           Returned:{" "}
-                          {formatDate(loan.returnedDate)}
+                          {formatDate(
+                            loan.returnedDate
+                          )}
                         </span>
                       )}
                     </div>
@@ -372,13 +464,14 @@ export default function MyLoans({
                           status.background,
                         color: status.color,
                       }}
-                      className="inline-flex items-center px-4 py-2 rounded-full text-xs font-bold"
+                      className="inline-flex items-center rounded-full px-4 py-2 text-xs font-bold"
                     >
                       {status.label}
                     </span>
 
                     {loan.status === "Active" &&
-                      typeof onReturn === "function" && (
+                      typeof onReturn ===
+                        "function" && (
                         <button
                           type="button"
                           onClick={() =>
@@ -404,11 +497,11 @@ export default function MyLoans({
               className="mx-auto text-[#AAA59D]"
             />
 
-            <h3 className="font-bold text-[#292929] mt-4">
+            <h3 className="mt-4 font-bold text-[#292929]">
               No loans found
             </h3>
 
-            <p className="text-sm text-[#85817B] mt-2">
+            <p className="mt-2 text-sm text-[#85817B]">
               There are no records for this filter.
             </p>
           </div>
@@ -416,16 +509,17 @@ export default function MyLoans({
       </section>
 
       {/* FOOTER */}
-      <div className="bg-[#E9F4F0] rounded-[20px] p-5 flex items-start gap-3">
+      <div className="flex items-start gap-3 rounded-[20px] bg-[#E9F4F0] p-5">
         <Info
           size={20}
-          className="text-[#276C64] shrink-0 mt-0.5"
+          className="mt-0.5 shrink-0 text-[#276C64]"
         />
 
-        <p className="text-sm text-[#55736C] leading-relaxed">
-          This is a frontend demonstration of the library
-          borrowing system. Borrowing and returning will
-          use real database records after backend integration.
+        <p className="text-sm leading-relaxed text-[#55736C]">
+          This is a frontend demonstration of the
+          library borrowing system. Borrowing and
+          returning will use real database records
+          after backend integration.
         </p>
       </div>
     </div>

@@ -146,18 +146,24 @@ function PublicBookDetails({
 
         <div className="bg-white border border-[#EEEAE4] rounded-[28px] p-6 md:p-10">
           <div className="grid md:grid-cols-[280px_1fr] gap-10">
-            <div className="bg-[#D8EDE8] rounded-[24px] min-h-80 flex items-center justify-center p-8">
-              <div className="w-40 h-56 bg-white/90 rounded-r-xl rounded-l-sm border-l-8 border-[#292929]/20 shadow-xl flex flex-col items-center justify-center p-5 text-center">
-                <BookOpen
-                  size={40}
-                  className="text-[#292929] mb-6"
-                />
-
-                <span className="text-sm font-extrabold text-[#292929]">
-                  {book.title}
-                </span>
-              </div>
-            </div>
+            
+<div className="bg-[#D8EDE8] rounded-[24px] min-h-80 flex items-center justify-center p-8">
+  <img
+    src={
+      book.cover ||
+      (book.isbn
+        ? `https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg?default=false`
+        : "")
+    }
+    alt={`Cover of ${book.title}`}
+    className="max-h-72 max-w-full object-contain rounded-sm shadow-2xl"
+    onError={(event) => {
+      event.currentTarget.onerror = null;
+      event.currentTarget.src =
+        "https://placehold.co/240x340/F7F5F0/292929?text=Book+Cover";
+    }}
+  />
+</div>
 
             <div>
               <span className="text-sm font-bold text-[#A67C28]">
@@ -245,7 +251,8 @@ function App() {
 
   const path = location.pathname;
   const query = new URLSearchParams(location.search);
-
+const roleSelectionMode =
+  query.get("mode") === "register" ? "register" : "login";
   const requestedRole =
     query.get("role") === "admin"
       ? "admin"
@@ -321,29 +328,44 @@ function App() {
   // NAVIGATION
   // ----------------------------------
 
-  const goHome = () => {
-    navigate("/");
-  };
+  
+const openRoleSelection = (mode = "login") => {
+  navigate(
+    mode === "register"
+      ? "/choose-role?mode=register"
+      : "/choose-role"
+  );
+};
 
-  const openPublicLibrary = () => {
-    navigate("/explore");
-  };
+const openStudentLogin = () => {
+  navigate("/login?role=student");
+};
 
-  const openRoleSelection = () => {
-    navigate("/choose-role");
-  };
+const openAdminLogin = () => {
+  navigate("/login?role=admin");
+};
 
-  const openStudentLogin = () => {
-    navigate("/login?role=student");
-  };
+const openAdminRegister = () => {
+  navigate("/register?role=admin");
+};
 
-  const openAdminLogin = () => {
-    navigate("/login?role=admin");
-  };
+const openStudentRegister = () => {
+  navigate("/register");
+};
 
-  const openStudentRegister = () => {
-    navigate("/register");
-  };
+
+const openCreateAccount = () => {
+  openRoleSelection("register");
+};
+
+const openPublicLibrary = () => {
+  navigate("/explore");
+};
+
+const goHome = () => {
+  navigate("/");
+};
+
 
   // ----------------------------------
   // DEMO AUTHENTICATION
@@ -376,11 +398,26 @@ const handleLogin = ({ email, password }) => {
 
 
   
+
 const handleRegister = ({
   fullName,
   email,
   password,
+  role = "student",
 }) => {
+  // Administrator registration requires backend approval.
+  // Never create an active administrator through demoAuth.
+  if (role === "admin") {
+    return {
+      error:
+        "Administrator registration is not available until the backend approval system is connected.",
+    };
+  }
+
+  if (role !== "student") {
+    return { error: "Invalid account type." };
+  }
+
   const result = registerStudent({
     fullName,
     email,
@@ -396,6 +433,7 @@ const handleRegister = ({
 
   return { success: true };
 };
+
 
 
   const handleStudentNavigation = (page) => {
@@ -615,7 +653,7 @@ const handleRegister = ({
       <LandingPage
         onExplore={openPublicLibrary}
         onLogin={openRoleSelection}
-        onRegister={openStudentRegister}
+        onRegister={openCreateAccount}
       />
     );
   }
@@ -624,15 +662,26 @@ const handleRegister = ({
   // 2. ROLE SELECTION
   // ----------------------------------
 
-  if (isRoleSelection) {
-    return (
-      <RoleSelection
-        onStudent={openStudentLogin}
-        onAdmin={openAdminLogin}
-        onBack={goHome}
-      />
-    );
-  }
+  
+if (isRoleSelection) {
+  return (
+    <RoleSelection
+      mode={roleSelectionMode}
+      onStudent={
+        roleSelectionMode === "register"
+          ? openStudentRegister
+          : openStudentLogin
+      }
+      onAdmin={
+  roleSelectionMode === "register"
+    ? openAdminRegister
+    : openAdminLogin
+}
+      onBack={goHome}
+    />
+  );
+}
+
 
   // ----------------------------------
   // 3. PUBLIC LIBRARY
@@ -644,7 +693,7 @@ const handleRegister = ({
         books={catalogueBooks}
         onHome={goHome}
         onLogin={openRoleSelection}
-        onRegister={openStudentRegister}
+        onRegister={openCreateAccount}
         onViewDetails={(book) =>
           navigate(
             `/explore/books/${book.id}`
@@ -665,7 +714,7 @@ const handleRegister = ({
           books={catalogueBooks}
           onHome={goHome}
           onLogin={openRoleSelection}
-          onRegister={openStudentRegister}
+          onRegister={openCreateAccount}
           onViewDetails={(book) =>
             navigate(
               `/explore/books/${book.id}`
@@ -680,7 +729,7 @@ const handleRegister = ({
         book={publicBook}
         onBack={openPublicLibrary}
         onLogin={openStudentLogin}
-        onRegister={openStudentRegister}
+        onRegister={openCreateAccount}
       />
     );
   }
@@ -690,28 +739,31 @@ const handleRegister = ({
   // ----------------------------------
 
   if (isLogin) {
-    return (
-      <Login
-        onLogin={handleLogin}
-        onRegister={openStudentRegister}
-        onBack={openRoleSelection}
-      />
-    );
-  }
-
+  return (
+    <Login
+      role={requestedRole}
+      onLogin={handleLogin}
+      onRegister={openCreateAccount}
+      onBack={openRoleSelection}
+    />
+  );
+}
   // ----------------------------------
   // 6. REGISTER
   // ----------------------------------
 
-  if (isRegister) {
-    return (
-      <Register
-        onRegister={handleRegister}
-        onLogin={openStudentLogin}
-        onBack={goHome}
-      />
-    );
-  }
+  
+if (isRegister) {
+  return (
+    <Register
+      role={requestedRole}
+      onRegister={handleRegister}
+      onLogin={openRoleSelection}
+      onBack={goHome}
+    />
+  );
+}
+
 
   // ----------------------------------
   // 7. STUDENT AREA
