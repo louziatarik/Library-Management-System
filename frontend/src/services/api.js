@@ -1,11 +1,25 @@
 
+import { getAccessToken } from "./tokenStorage";
+
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 async function apiRequest(endpoint, options = {}) {
   const headers = new Headers(options.headers);
 
-  if (options.body != null && !(options.body instanceof FormData)) {
+  // Automatically attach the JWT access token when available.
+  // Explicit Authorization headers take priority.
+  const token = getAccessToken();
+
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  // Set JSON content type when sending a JSON request body.
+  if (
+    options.body != null &&
+    !(options.body instanceof FormData)
+  ) {
     if (!headers.has("Content-Type")) {
       headers.set("Content-Type", "application/json");
     }
@@ -19,12 +33,17 @@ async function apiRequest(endpoint, options = {}) {
     }
   );
 
+  // Handle backend errors.
   if (!response.ok) {
     let message = `Request failed: ${response.status}`;
 
     try {
       const error = await response.json();
-      message = error.detail || error.message || message;
+
+      message =
+        error.detail ||
+        error.message ||
+        message;
     } catch {
       // Keep the default error message.
     }
@@ -36,6 +55,7 @@ async function apiRequest(endpoint, options = {}) {
     );
   }
 
+  // Handle successful responses without a body.
   if (response.status === 204) {
     return null;
   }
