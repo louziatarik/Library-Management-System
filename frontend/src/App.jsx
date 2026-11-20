@@ -9,13 +9,14 @@ import BookCatalogue from "./pages/BookCatalogue";
 import BookDetails from "./pages/BookDetails";
 import MyLoans from "./pages/MyLoans";
 import MyProfile from "./pages/MyProfile";
-
+import LandingPage from "./pages/LandingPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageBooks from "./pages/admin/ManageBooks";
 import ManageCategories from "./pages/admin/ManageCategories";
 import ManageLoans from "./pages/admin/ManageLoans";
 import ManageStudents from "./pages/admin/ManageStudents";
 function App() {
+  const [showLanding, setShowLanding] = useState(true);
   // Student navigation
   const [activePage, setActivePage] = useState("Dashboard");
   const [selectedBook, setSelectedBook] = useState(null);
@@ -92,7 +93,14 @@ case "Manage Students":
         return <AdminDashboard />;
     }
   };
-
+// Show the landing page before entering the library
+if (showLanding) {
+  return (
+    <LandingPage
+      onExplore={() => setShowLanding(false)}
+    />
+  );
+}
   // Admin preview interface
   if (previewRole === "admin") {
     return (
