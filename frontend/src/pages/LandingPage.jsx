@@ -1,28 +1,42 @@
 
-import { ArrowRight, BookOpen, LibraryBig, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  LibraryBig,
+  Sparkles,
+  LogIn,
+  UserPlus,
+} from "lucide-react";
 
 const features = [
   {
     icon: BookOpen,
     title: "Discover your next read",
-    description: "Explore a thoughtfully organized collection of books and ideas.",
+    description:
+      "Explore a thoughtfully organized collection of books and ideas.",
     color: "#A9D7D0",
   },
   {
     icon: LibraryBig,
     title: "Everything in one place",
-    description: "Browse the catalogue, manage loans, and stay organized.",
+    description:
+      "Browse the catalogue, manage loans, and stay organized.",
     color: "#F5C96A",
   },
   {
     icon: Sparkles,
     title: "Made for curious minds",
-    description: "A calmer, more beautiful way to experience your library.",
+    description:
+      "A calmer, more beautiful way to experience your library.",
     color: "#E8A6A1",
   },
 ];
 
-export default function LandingPage({ onExplore }) {
+export default function LandingPage({
+  onExplore,
+  onLogin,
+  onRegister,
+}) {
   return (
     <div className="min-h-screen overflow-hidden bg-[#F7F5F0] text-[#292929]">
       <style>{`
@@ -53,23 +67,44 @@ export default function LandingPage({ onExplore }) {
       `}</style>
 
       {/* Navigation */}
-      <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-10">
+      <header className="relative z-20 mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-6 md:px-10">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#123D30] text-[#F5C96A]">
             <BookOpen size={23} />
           </div>
+
           <span className="text-xl font-extrabold tracking-[0.08em]">
             BOOKNEST
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={onExplore}
-          className="rounded-full bg-[#F5C96A] px-5 py-3 text-sm font-bold transition hover:bg-[#E9BA50]"
-        >
-          Enter Library
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={onLogin}
+            className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-[#123D30] transition hover:bg-[#E9E7DF]"
+          >
+            <LogIn size={17} />
+            Sign In
+          </button>
+
+          <button
+            type="button"
+            onClick={onRegister}
+            className="inline-flex items-center gap-2 rounded-full border border-[#123D30] px-5 py-3 text-sm font-bold text-[#123D30] transition hover:bg-[#123D30] hover:text-white"
+          >
+            <UserPlus size={17} />
+            Create Account
+          </button>
+
+          <button
+            type="button"
+            onClick={onExplore}
+            className="rounded-full bg-[#F5C96A] px-5 py-3 text-sm font-bold transition hover:bg-[#E9BA50]"
+          >
+            Enter Library
+          </button>
+        </div>
       </header>
 
       {/* Hero */}
@@ -80,6 +115,7 @@ export default function LandingPage({ onExplore }) {
             aria-hidden="true"
             className="pointer-events-none absolute left-[-140px] top-16 h-80 w-80 rounded-full bg-[#A9D7D0]/35 blur-3xl"
           />
+
           <div
             aria-hidden="true"
             className="pointer-events-none absolute right-[-120px] top-32 h-80 w-80 rounded-full bg-[#F5C96A]/30 blur-3xl"
@@ -99,44 +135,43 @@ export default function LandingPage({ onExplore }) {
             chapter count.
           </p>
 
-          {/* Floating open-book illustration */}
-          
-{/* Realistic floating book */}
-<div className="relative my-4 flex w-full max-w-3xl items-center justify-center py-2 sm:my-5">
-  {/* Warm golden glow */}
-  <div
-    aria-hidden="true"
-    className="booknest-glow pointer-events-none absolute h-48 w-[75%] rounded-full bg-[#F5C96A]/35 blur-[65px]"
-  />
+          {/* Floating book */}
+          <div className="relative my-4 flex w-full max-w-3xl items-center justify-center py-2 sm:my-5">
+            {/* Warm golden glow */}
+            <div
+              aria-hidden="true"
+              className="booknest-glow pointer-events-none absolute h-48 w-[75%] rounded-full bg-[#F5C96A]/35 blur-[65px]"
+            />
 
-  {/* Mint ambient lighting */}
-  <div
-    aria-hidden="true"
-    className="pointer-events-none absolute -left-8 top-1/4 h-40 w-40 rounded-full bg-[#A9D7D0]/30 blur-3xl"
-  />
+            {/* Mint ambient lighting */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -left-8 top-1/4 h-40 w-40 rounded-full bg-[#A9D7D0]/30 blur-3xl"
+            />
 
-  {/* Shadow beneath the book */}
-  <div
-    aria-hidden="true"
-    className="absolute bottom-3 h-8 w-[65%] rounded-full bg-[#123D30]/15 blur-2xl"
-  />
+            {/* Shadow beneath the book */}
+            <div
+              aria-hidden="true"
+              className="absolute bottom-3 h-8 w-[65%] rounded-full bg-[#123D30]/15 blur-2xl"
+            />
 
-  {/* Floating image */}
-  <img
-    src="/booknest-hero.png"
-    alt="Realistic open book with emerald-green cover and golden details"
-    className="booknest-floating relative z-10 h-auto w-full max-w-[740px] object-contain drop-shadow-[0_22px_25px_rgba(35,48,38,0.16)]"
-    loading="eager"
-  />
-</div>
+            {/* Floating image */}
+            <img
+              src="/booknest-hero.png"
+              alt="Realistic open book with emerald-green cover and golden details"
+              className="booknest-floating relative z-10 h-auto w-full max-w-[740px] object-contain drop-shadow-[0_22px_25px_rgba(35,48,38,0.16)]"
+              loading="eager"
+            />
+          </div>
 
-
+          {/* Main CTA */}
           <button
             type="button"
             onClick={onExplore}
             className="group relative z-10 inline-flex items-center gap-3 rounded-full bg-[#F5C96A] px-9 py-4 text-base font-bold text-[#292929] shadow-[0_12px_30px_rgba(200,155,60,0.25)] transition duration-300 hover:-translate-y-1 hover:bg-[#E9BA50]"
           >
             Explore Library
+
             <ArrowRight
               size={20}
               className="transition-transform group-hover:translate-x-1"
@@ -155,30 +190,39 @@ export default function LandingPage({ onExplore }) {
               <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-[#267458]">
                 Beyond the bookshelf
               </p>
+
               <h2 className="text-3xl font-bold tracking-tight text-[#292929] sm:text-4xl">
                 A better way to explore.
               </h2>
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
-              {features.map(({ icon: Icon, title, description, color }) => (
-                <div
-                  key={title}
-                  className="rounded-[28px] border border-[#EEEAE4] bg-white p-8 shadow-[0_12px_35px_rgba(35,48,38,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-lg"
-                >
+              {features.map(
+                ({ icon: Icon, title, description, color }) => (
                   <div
-                    className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl"
-                    style={{ backgroundColor: color }}
+                    key={title}
+                    className="rounded-[28px] border border-[#EEEAE4] bg-white p-8 shadow-[0_12px_35px_rgba(35,48,38,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                   >
-                    <Icon size={25} className="text-[#292929]" />
-                  </div>
+                    <div
+                      className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl"
+                      style={{ backgroundColor: color }}
+                    >
+                      <Icon
+                        size={25}
+                        className="text-[#292929]"
+                      />
+                    </div>
 
-                  <h3 className="mb-3 text-xl font-bold">{title}</h3>
-                  <p className="text-sm leading-7 text-[#737770]">
-                    {description}
-                  </p>
-                </div>
-              ))}
+                    <h3 className="mb-3 text-xl font-bold">
+                      {title}
+                    </h3>
+
+                    <p className="text-sm leading-7 text-[#737770]">
+                      {description}
+                    </p>
+                  </div>
+                )
+              )}
             </div>
           </div>
         </section>

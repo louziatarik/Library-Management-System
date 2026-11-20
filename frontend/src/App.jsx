@@ -9,14 +9,21 @@ import BookCatalogue from "./pages/BookCatalogue";
 import BookDetails from "./pages/BookDetails";
 import MyLoans from "./pages/MyLoans";
 import MyProfile from "./pages/MyProfile";
+
 import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageBooks from "./pages/admin/ManageBooks";
 import ManageCategories from "./pages/admin/ManageCategories";
 import ManageLoans from "./pages/admin/ManageLoans";
 import ManageStudents from "./pages/admin/ManageStudents";
+
 function App() {
-  const [showLanding, setShowLanding] = useState(true);
+  // Available screens: landing, login, register, library
+  const [screen, setScreen] = useState("landing");
+
   // Student navigation
   const [activePage, setActivePage] = useState("Dashboard");
   const [selectedBook, setSelectedBook] = useState(null);
@@ -27,29 +34,55 @@ function App() {
   // Admin navigation
   const [adminPage, setAdminPage] = useState("Admin Dashboard");
 
-  // Open details for a selected book
+  // Temporary demo account information (not real authentication)
+  const [demoUser, setDemoUser] = useState(null);
+
+  const goHome = () => {
+    setScreen("landing");
+  };
+
+  const openLibraryPreview = () => {
+    setScreen("library");
+  };
+
+  const handleLogin = ({ email }) => {
+    // Frontend demonstration only.
+    // Any nonempty email/password accepted by Login.jsx.
+    setDemoUser({
+      fullName: "BookNest Student",
+      email,
+    });
+
+    setPreviewRole("student");
+    setActivePage("Dashboard");
+    setScreen("library");
+  };
+
+  const handleRegister = ({ fullName, email }) => {
+    // Frontend demonstration only.
+    // No real account is created or password stored.
+    setDemoUser({ fullName, email });
+    setPreviewRole("student");
+    setActivePage("Dashboard");
+    setScreen("library");
+  };
+
   const openBookDetails = (book) => {
     setSelectedBook(book);
     setActivePage("Book Details");
   };
 
-  // Return to the book catalogue
   const backToCatalogue = () => {
     setActivePage("Book Catalogue");
   };
 
-  // Student pages
   const renderStudentPage = () => {
     switch (activePage) {
       case "Dashboard":
         return <Dashboard setActivePage={setActivePage} />;
 
       case "Book Catalogue":
-        return (
-          <BookCatalogue
-            onViewDetails={openBookDetails}
-          />
-        );
+        return <BookCatalogue onViewDetails={openBookDetails} />;
 
       case "Book Details":
         return selectedBook ? (
@@ -58,9 +91,7 @@ function App() {
             onBack={backToCatalogue}
           />
         ) : (
-          <BookCatalogue
-            onViewDetails={openBookDetails}
-          />
+          <BookCatalogue onViewDetails={openBookDetails} />
         );
 
       case "My Loans":
@@ -74,47 +105,73 @@ function App() {
     }
   };
 
-  // Admin pages
   const renderAdminPage = () => {
     switch (adminPage) {
       case "Admin Dashboard":
         return <AdminDashboard />;
-case "Manage Books":
-  return <ManageBooks />;
-case "Manage Categories":
-  return <ManageCategories />;
 
- case "Manage Loans":
-  return <ManageLoans />;
+      case "Manage Books":
+        return <ManageBooks />;
 
-case "Manage Students":
-  return <ManageStudents />;
+      case "Manage Categories":
+        return <ManageCategories />;
+
+      case "Manage Loans":
+        return <ManageLoans />;
+
+      case "Manage Students":
+        return <ManageStudents />;
 
       default:
         return <AdminDashboard />;
     }
   };
-// Show the landing page before entering the library
-if (showLanding) {
-  return (
-    <LandingPage
-      onExplore={() => setShowLanding(false)}
-    />
-  );
-}
-  // Admin preview interface
+
+  // Landing Page
+  if (screen === "landing") {
+    return (
+      <LandingPage
+        onExplore={openLibraryPreview}
+        onLogin={() => setScreen("login")}
+        onRegister={() => setScreen("register")}
+      />
+    );
+  }
+
+  // Login Page
+  if (screen === "login") {
+    return (
+      <Login
+        onLogin={handleLogin}
+        onRegister={() => setScreen("register")}
+        onBack={goHome}
+      />
+    );
+  }
+
+  // Registration Page
+  if (screen === "register") {
+    return (
+      <Register
+        onRegister={handleRegister}
+        onLogin={() => setScreen("login")}
+        onBack={goHome}
+      />
+    );
+  }
+
+  // Admin Preview
   if (previewRole === "admin") {
     return (
       <div className="min-h-screen bg-[#F7F5F0] flex">
         <AdminSidebar
-  activePage={adminPage}
-  setActivePage={setAdminPage}
-  onGoHome={() => setShowLanding(true)}
-/>
+          activePage={adminPage}
+          setActivePage={setAdminPage}
+          onGoHome={goHome}
+        />
 
         <main className="flex-1 min-w-0 p-6 md:p-10">
           <div className="max-w-7xl mx-auto">
-
             <div className="flex justify-end mb-6">
               <button
                 type="button"
@@ -132,18 +189,17 @@ if (showLanding) {
     );
   }
 
-  // Student preview interface
+  // Student Preview
   return (
     <div className="min-h-screen bg-[#F7F5F0] flex">
       <Sidebar
-  activePage={activePage}
-  setActivePage={setActivePage}
-  onGoHome={() => setShowLanding(true)}
-/>
+        activePage={activePage}
+        setActivePage={setActivePage}
+        onGoHome={goHome}
+      />
 
       <main className="flex-1 min-w-0 p-6 md:p-10">
         <div className="max-w-7xl mx-auto">
-
           <div className="flex justify-end mb-6">
             <button
               type="button"
