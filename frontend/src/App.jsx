@@ -106,9 +106,10 @@ if (showLanding) {
     return (
       <div className="min-h-screen bg-[#F7F5F0] flex">
         <AdminSidebar
-          activePage={adminPage}
-          setActivePage={setAdminPage}
-        />
+  activePage={adminPage}
+  setActivePage={setAdminPage}
+  onGoHome={() => setShowLanding(true)}
+/>
 
         <main className="flex-1 min-w-0 p-6 md:p-10">
           <div className="max-w-7xl mx-auto">
@@ -134,9 +135,10 @@ if (showLanding) {
   return (
     <div className="min-h-screen bg-[#F7F5F0] flex">
       <Sidebar
-        activePage={activePage}
-        setActivePage={setActivePage}
-      />
+  activePage={activePage}
+  setActivePage={setActivePage}
+  onGoHome={() => setShowLanding(true)}
+/>
 
       <main className="flex-1 min-w-0 p-6 md:p-10">
         <div className="max-w-7xl mx-auto">

@@ -17,13 +17,22 @@ const menuItems = [
   { name: "My Profile", icon: UserRound }
 ];
 
-export default function Sidebar({ activePage, setActivePage }) {
+export default function Sidebar({
+  activePage,
+  setActivePage,
+  onGoHome,
+}) {
   return (
     <aside className="w-64 shrink-0 min-h-screen bg-white border-r border-[#EEEAE4] flex flex-col">
 
       {/* LOGO */}
-      <div className="px-6 pt-8 pb-10">
-        <div className="flex items-center gap-3">
+<div className="px-6 pt-8 pb-10">
+  <button
+    type="button"
+    onClick={onGoHome}
+    aria-label="Return to BookNest landing page"
+    className="flex w-full items-center gap-3 text-left rounded-2xl transition-opacity duration-200 hover:opacity-75 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#276C64]"
+  >
           <div className="w-12 h-12 bg-[#F5C96A] rounded-2xl flex items-center justify-center">
             <BookOpen size={25} className="text-[#292929]" />
           </div>
@@ -35,9 +44,9 @@ export default function Sidebar({ activePage, setActivePage }) {
             <p className="text-[10px] uppercase tracking-[2px] text-[#9B978F] font-bold">
               Digital Library
             </p>
-          </div>
-        </div>
-      </div>
+               </div>
+      </button>
+    </div>
 
       {/* NAVIGATION */}
       <div className="px-4 flex-1">
