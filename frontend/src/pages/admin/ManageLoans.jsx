@@ -90,9 +90,9 @@ function getLoanStatus(loan, today) {
 }
 
 const statusStyles = {
-  Active: "bg-[#E9F4F0] text-[#27816B]",
+  Active: "bg-[#FFF5D9] text-[#A66B00]",
   Overdue: "bg-[#FFF0ED] text-[#B45C53]",
-  Returned: "bg-[#F0EEF7] text-[#74638F]"
+  Returned: "bg-[#F7F5F0] text-[#74695C]"
 };
 
 export default function ManageLoans() {
@@ -165,25 +165,29 @@ export default function ManageLoans() {
       title: "Total Loans",
       value: stats.total,
       icon: BookMarked,
-      background: "#D8EDE8"
+      background: "#FFF1C2",
+      iconColor: "#A66B00"
     },
     {
       title: "Active Loans",
       value: stats.active,
       icon: Clock3,
-      background: "#F9E8B5"
+      background: "#FCE7A6",
+      iconColor: "#805500"
     },
     {
       title: "Overdue Loans",
       value: stats.overdue,
       icon: AlertCircle,
-      background: "#F6D7D1"
+      background: "#F6D7D1",
+      iconColor: "#B45C53"
     },
     {
       title: "Returned Loans",
       value: stats.returned,
       icon: CheckCircle2,
-      background: "#D8C5EA"
+      background: "#FFE5A3",
+      iconColor: "#805500"
     }
   ];
 
@@ -207,7 +211,7 @@ export default function ManageLoans() {
         </div>
 
         <div className="w-14 h-14 bg-[#F5C96A] rounded-2xl flex items-center justify-center">
-          <BookMarked size={27} className="text-[#292929]" />
+          <BookMarked size={27} className="text-[#805500]" />
         </div>
       </header>
 
@@ -222,8 +226,11 @@ export default function ManageLoans() {
               style={{ backgroundColor: card.background }}
               className="rounded-[24px] p-6 min-h-40 flex flex-col justify-between"
             >
-              <div className="w-11 h-11 bg-white/50 rounded-xl flex items-center justify-center">
-                <Icon size={23} className="text-[#292929]" />
+              <div className="w-11 h-11 bg-white/60 rounded-xl flex items-center justify-center">
+                <Icon
+                  size={23}
+                  style={{ color: card.iconColor }}
+                />
               </div>
 
               <div className="mt-5">
@@ -287,8 +294,8 @@ export default function ManageLoans() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-[#F7F5F0]">
-              <tr className="text-xs uppercase tracking-wide text-[#85817B]">
+            <thead className="bg-[#FFF8E6]">
+              <tr className="text-xs uppercase tracking-wide text-[#805500]">
                 <th className="px-5 py-4">Book</th>
                 <th className="px-5 py-4">Student</th>
                 <th className="px-5 py-4">Borrowed</th>
@@ -302,12 +309,12 @@ export default function ManageLoans() {
               {filteredLoans.map((loan) => (
                 <tr
                   key={loan.id}
-                  className="border-t border-[#EEEAE4] hover:bg-[#FCFBF8]"
+                  className="border-t border-[#EEEAE4] hover:bg-[#FFFCF3] transition-colors"
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3 min-w-44">
-                      <div className="w-11 h-12 bg-[#F9E8B5] rounded-xl flex items-center justify-center shrink-0">
-                        <BookOpen size={21} className="text-[#292929]" />
+                      <div className="w-11 h-12 bg-[#FCE7A6] rounded-xl flex items-center justify-center shrink-0">
+                        <BookOpen size={21} className="text-[#805500]" />
                       </div>
 
                       <span className="text-sm font-semibold text-[#292929]">
@@ -354,7 +361,7 @@ export default function ManageLoans() {
                       <button
                         type="button"
                         onClick={() => markAsReturned(loan)}
-                        className="inline-flex items-center gap-2 bg-[#E9F4F0] text-[#27816B] px-3 py-2 rounded-xl text-xs font-semibold hover:bg-[#D8EDE8] whitespace-nowrap"
+                        className="inline-flex items-center gap-2 bg-[#FFF5D9] text-[#A66B00] px-3 py-2 rounded-xl text-xs font-semibold hover:bg-[#FCE7A6] whitespace-nowrap transition-colors"
                       >
                         <RotateCcw size={15} />
                         Mark Returned
@@ -380,13 +387,13 @@ export default function ManageLoans() {
       </section>
 
       {/* INFORMATION */}
-      <div className="bg-[#E9F4F0] rounded-[20px] p-5 flex items-start gap-3">
+      <div className="bg-[#FFF8E6] rounded-[20px] p-5 flex items-start gap-3 border border-[#F5E4B5]">
         <Info
           size={20}
-          className="text-[#276C64] shrink-0 mt-0.5"
+          className="text-[#A66B00] shrink-0 mt-0.5"
         />
 
-        <p className="text-sm text-[#55736C] leading-relaxed">
+        <p className="text-sm text-[#80652E] leading-relaxed">
           Demo mode: loan records are fictional. Marking a book
           as returned updates this page temporarily, but does
           not update the database or book availability.

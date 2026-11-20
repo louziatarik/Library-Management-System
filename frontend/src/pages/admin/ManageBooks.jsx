@@ -164,6 +164,7 @@ export default function ManageBooks() {
 
   return (
     <div className="space-y-7">
+
       {/* HEADER */}
       <div className="flex flex-wrap justify-between items-center gap-4">
         <div>
@@ -183,7 +184,7 @@ export default function ManageBooks() {
         <button
           type="button"
           onClick={openAddForm}
-          className="flex items-center gap-2 bg-[#F5C96A] text-[#292929] px-5 py-3 rounded-2xl font-semibold hover:bg-[#E9BA50] transition-colors"
+          className="flex items-center gap-2 bg-[#F5C96A] text-[#292929] px-5 py-3 rounded-2xl font-semibold hover:bg-[#E9BA50] transition-colors shadow-sm"
         >
           <Plus size={19} />
           Add New Book
@@ -197,13 +198,13 @@ export default function ManageBooks() {
             label: "Total Books",
             value: books.length,
             icon: Library,
-            color: "#D8EDE8"
+            color: "#FFF1C2"
           },
           {
             label: "Available",
             value: availableCount,
             icon: BookCheck,
-            color: "#F9E8B5"
+            color: "#FCE7A6"
           },
           {
             label: "Unavailable",
@@ -230,8 +231,8 @@ export default function ManageBooks() {
                 </h2>
               </div>
 
-              <div className="bg-white/50 rounded-xl p-3">
-                <Icon size={25} className="text-[#292929]" />
+              <div className="bg-white/60 rounded-xl p-3">
+                <Icon size={25} className="text-[#805500]" />
               </div>
             </div>
           );
@@ -299,8 +300,8 @@ export default function ManageBooks() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-[#F7F5F0]">
-              <tr className="text-xs uppercase tracking-wide text-[#85817B]">
+            <thead className="bg-[#FFF8E6]">
+              <tr className="text-xs uppercase tracking-wide text-[#805500]">
                 <th className="px-6 py-4">Book</th>
                 <th className="px-6 py-4">Category</th>
                 <th className="px-6 py-4">ISBN</th>
@@ -313,7 +314,7 @@ export default function ManageBooks() {
               {filteredBooks.map((book) => (
                 <tr
                   key={book.id}
-                  className="border-t border-[#EEEAE4] hover:bg-[#FCFBF8]"
+                  className="border-t border-[#EEEAE4] hover:bg-[#FFFCF3]"
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3 min-w-48">
@@ -345,7 +346,7 @@ export default function ManageBooks() {
                     <span
                       className={`inline-flex px-3 py-1.5 rounded-full text-xs font-semibold ${
                         book.available
-                          ? "bg-[#E9F4F0] text-[#27816B]"
+                          ? "bg-[#FFF5D9] text-[#A66B00]"
                           : "bg-[#FFF0ED] text-[#B45C53]"
                       }`}
                     >
@@ -413,7 +414,7 @@ export default function ManageBooks() {
                 type="button"
                 onClick={closeForm}
                 aria-label="Close form"
-                className="p-2 rounded-lg hover:bg-[#F7F5F0]"
+                className="p-2 rounded-lg hover:bg-[#FFF5D9]"
               >
                 <X size={21} />
               </button>

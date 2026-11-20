@@ -10,7 +10,6 @@ import {
   Pencil,
   X,
   Check,
-  ShieldCheck,
   Info
 } from "lucide-react";
 
@@ -83,11 +82,11 @@ function formatDate(value) {
 function todayString() {
   const date = new Date();
 
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
 }
 
 export default function ManageStudents() {
@@ -246,7 +245,7 @@ export default function ManageStudents() {
       title: "Total Students",
       value: students.length,
       icon: Users,
-      background: "#D8EDE8"
+      background: "#F5C96A"
     },
     {
       title: "Active Students",
@@ -384,8 +383,8 @@ export default function ManageStudents() {
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3 min-w-56">
-                      <div className="w-11 h-11 rounded-full bg-[#D8EDE8] flex items-center justify-center shrink-0">
-                        <UserRound size={21} className="text-[#276C64]" />
+                      <div className="w-11 h-11 rounded-full bg-[#F9E8B5] flex items-center justify-center shrink-0">
+                        <UserRound size={21} className="text-[#8A6421]" />
                       </div>
 
                       <div>
@@ -416,7 +415,7 @@ export default function ManageStudents() {
                     <span
                       className={`inline-flex px-3 py-1.5 rounded-full text-xs font-semibold ${
                         student.active
-                          ? "bg-[#E9F4F0] text-[#27816B]"
+                          ? "bg-[#FFF4D6] text-[#946B17]"
                           : "bg-[#FFF0ED] text-[#B45C53]"
                       }`}
                     >
@@ -444,7 +443,7 @@ export default function ManageStudents() {
                         className={`p-2 rounded-lg ${
                           student.active
                             ? "bg-[#FFF0ED] text-[#B45C53] hover:bg-[#F6D7D1]"
-                            : "bg-[#E9F4F0] text-[#27816B] hover:bg-[#D8EDE8]"
+                            : "bg-[#FFF4D6] text-[#946B17] hover:bg-[#F9E8B5]"
                         }`}
                       >
                         {student.active ? (
@@ -474,10 +473,10 @@ export default function ManageStudents() {
       </section>
 
       {/* INFORMATION */}
-      <div className="bg-[#E9F4F0] rounded-[20px] p-5 flex items-start gap-3">
-        <Info size={20} className="text-[#276C64] shrink-0 mt-0.5" />
+      <div className="bg-[#FFF4D6] rounded-[20px] p-5 flex items-start gap-3">
+        <Info size={20} className="text-[#946B17] shrink-0 mt-0.5" />
 
-        <p className="text-sm text-[#55736C] leading-relaxed">
+        <p className="text-sm text-[#80652D] leading-relaxed">
           Demo mode: these are fictional student records.
           Changes are temporary and reset when the page reloads.
           Real student account management will require backend
@@ -590,6 +589,7 @@ export default function ManageStudents() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

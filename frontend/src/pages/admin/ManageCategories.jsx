@@ -19,7 +19,7 @@ const initialCategories = [
     id: 1,
     name: "Software Engineering",
     description: "Software design, development, and best practices.",
-    color: "#A9D7D0"
+    color: "#F5D77A"
   },
   {
     id: 2,
@@ -31,22 +31,22 @@ const initialCategories = [
     id: 3,
     name: "Computer Science",
     description: "Algorithms, data structures, and computing.",
-    color: "#E8A6A1"
+    color: "#E8B44D"
   },
   {
     id: 4,
     name: "UI/UX Design",
     description: "User experience and interface design.",
-    color: "#D8C5EA"
+    color: "#FFE5A3"
   }
 ];
 
 const categoryColors = [
-  "#A9D7D0",
+  "#F5D77A",
   "#F5C96A",
-  "#E8A6A1",
-  "#D8C5EA",
-  "#BFD7F0",
+  "#E8B44D",
+  "#FFE5A3",
+  "#FCECC0",
   "#F2D5B5"
 ];
 
@@ -216,7 +216,7 @@ export default function ManageCategories() {
         <button
           type="button"
           onClick={openAddForm}
-          className="flex items-center gap-2 bg-[#F5C96A] text-[#292929] px-5 py-3 rounded-2xl font-semibold hover:bg-[#E9BA50] transition-colors"
+          className="flex items-center gap-2 bg-[#F5C96A] text-[#292929] px-5 py-3 rounded-2xl font-semibold hover:bg-[#E9BA50] transition-colors shadow-sm"
         >
           <Plus size={19} />
           Add Category
@@ -225,28 +225,28 @@ export default function ManageCategories() {
 
       {/* STATISTICS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div className="bg-[#D8EDE8] rounded-[24px] p-6 flex justify-between items-center">
+        <div className="bg-[#FFF1C2] rounded-[24px] p-6 flex justify-between items-center">
           <div>
-            <p className="text-sm text-[#625B55]">
+            <p className="text-sm text-[#805500]">
               Total Categories
             </p>
             <h2 className="text-3xl font-extrabold text-[#292929] mt-2">
               {categories.length}
             </h2>
           </div>
-          <Tags size={30} className="text-[#292929]" />
+          <Tags size={30} className="text-[#A66B00]" />
         </div>
 
-        <div className="bg-[#F9E8B5] rounded-[24px] p-6 flex justify-between items-center">
+        <div className="bg-[#FCE7A6] rounded-[24px] p-6 flex justify-between items-center">
           <div>
-            <p className="text-sm text-[#625B55]">
+            <p className="text-sm text-[#805500]">
               Books Classified
             </p>
             <h2 className="text-3xl font-extrabold text-[#292929] mt-2">
               {totalClassifiedBooks}
             </h2>
           </div>
-          <BookOpen size={30} className="text-[#292929]" />
+          <BookOpen size={30} className="text-[#A66B00]" />
         </div>
       </div>
 
@@ -274,14 +274,14 @@ export default function ManageCategories() {
         {filteredCategories.map((category) => (
           <div
             key={category.id}
-            className="bg-white border border-[#EEEAE4] rounded-[24px] p-6"
+            className="bg-white border border-[#EEEAE4] rounded-[24px] p-6 hover:shadow-md transition-shadow"
           >
             <div className="flex justify-between items-start gap-3">
               <div
                 style={{ backgroundColor: category.color }}
                 className="w-13 h-13 rounded-2xl flex items-center justify-center p-3"
               >
-                <Tags size={24} className="text-[#292929]" />
+                <Tags size={24} className="text-[#805500]" />
               </div>
 
               <div className="flex gap-2">
@@ -289,7 +289,7 @@ export default function ManageCategories() {
                   type="button"
                   onClick={() => openEditForm(category)}
                   aria-label={`Edit ${category.name}`}
-                  className="p-2 bg-[#F7F5F0] rounded-lg hover:bg-[#F5C96A]"
+                  className="p-2 bg-[#F7F5F0] rounded-lg hover:bg-[#F5C96A] transition-colors"
                 >
                   <Pencil size={17} />
                 </button>
@@ -313,7 +313,7 @@ export default function ManageCategories() {
               {category.description || "No description provided."}
             </p>
 
-            <div className="border-t border-[#EEEAE4] mt-5 pt-4 flex items-center gap-2 text-sm text-[#625B55]">
+            <div className="border-t border-[#EEEAE4] mt-5 pt-4 flex items-center gap-2 text-sm text-[#805500]">
               <BookOpen size={17} />
               <span>
                 {category.bookCount}{" "}
@@ -353,7 +353,7 @@ export default function ManageCategories() {
                 type="button"
                 onClick={closeForm}
                 aria-label="Close form"
-                className="p-2 hover:bg-[#F7F5F0] rounded-lg"
+                className="p-2 hover:bg-[#FFF5D9] rounded-lg"
               >
                 <X size={21} />
               </button>
@@ -413,12 +413,12 @@ export default function ManageCategories() {
                       aria-pressed={form.color === color}
                       className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                         form.color === color
-                          ? "ring-2 ring-offset-2 ring-[#292929]"
+                          ? "ring-2 ring-offset-2 ring-[#A66B00]"
                           : ""
                       }`}
                     >
                       {form.color === color && (
-                        <Check size={18} className="text-[#292929]" />
+                        <Check size={18} className="text-[#805500]" />
                       )}
                     </button>
                   ))}
