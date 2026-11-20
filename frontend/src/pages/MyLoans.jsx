@@ -7,11 +7,11 @@ import {
   CheckCircle2,
   CalendarDays,
   History,
-  ArrowRight,
-  Info
+  Info,
 } from "lucide-react";
 
-// Demo records until the backend is connected
+// Temporary demo records.
+// These are used until shared loan state is passed from App.jsx.
 const demoLoans = [
   {
     id: 1,
@@ -21,7 +21,7 @@ const demoLoans = [
     dueDate: "2026-11-30",
     returnedDate: null,
     status: "Active",
-    color: "#E7B7A4"
+    color: "#E7B7A4",
   },
   {
     id: 2,
@@ -31,7 +31,7 @@ const demoLoans = [
     dueDate: "2026-11-22",
     returnedDate: null,
     status: "Active",
-    color: "#A9D7D0"
+    color: "#A9D7D0",
   },
   {
     id: 3,
@@ -41,7 +41,7 @@ const demoLoans = [
     dueDate: "2026-12-02",
     returnedDate: null,
     status: "Active",
-    color: "#D8C5EA"
+    color: "#D8C5EA",
   },
   {
     id: 4,
@@ -51,7 +51,7 @@ const demoLoans = [
     dueDate: "2026-11-01",
     returnedDate: "2026-10-29",
     status: "Returned",
-    color: "#F5C96A"
+    color: "#F5C96A",
   },
   {
     id: 5,
@@ -61,14 +61,17 @@ const demoLoans = [
     dueDate: "2026-10-25",
     returnedDate: "2026-10-23",
     status: "Returned",
-    color: "#C5D8B8"
-  }
+    color: "#C5D8B8",
+  },
 ];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 function daysUntil(dateString) {
+  if (!dateString) return 0;
+
   const today = new Date();
+
   const todayUTC = Date.UTC(
     today.getFullYear(),
     today.getMonth(),
@@ -76,6 +79,7 @@ function daysUntil(dateString) {
   );
 
   const [year, month, day] = dateString.split("-").map(Number);
+
   const dueUTC = Date.UTC(year, month - 1, day);
 
   return Math.round((dueUTC - todayUTC) / MS_PER_DAY);
@@ -91,7 +95,7 @@ function formatDate(dateString) {
     {
       month: "short",
       day: "numeric",
-      year: "numeric"
+      year: "numeric",
     }
   );
 }
@@ -101,7 +105,7 @@ function getLoanStatus(loan) {
     return {
       label: "Returned",
       color: "#27816B",
-      background: "#E9F4F0"
+      background: "#E9F4F0",
     };
   }
 
@@ -111,7 +115,7 @@ function getLoanStatus(loan) {
     return {
       label: "Overdue",
       color: "#B94B45",
-      background: "#FCE8E6"
+      background: "#FCE8E6",
     };
   }
 
@@ -119,25 +123,29 @@ function getLoanStatus(loan) {
     return {
       label: "Due Soon",
       color: "#A46A20",
-      background: "#FFF1D8"
+      background: "#FFF1D8",
     };
   }
 
   return {
     label: "Active",
     color: "#27816B",
-    background: "#E9F4F0"
+    background: "#E9F4F0",
   };
 }
 
-export default function MyLoans() {
+export default function MyLoans({
+  loans = demoLoans,
+  onReturn,
+}) {
   const [filter, setFilter] = useState("All Loans");
 
-  const activeLoans = demoLoans.filter(
+  // Shared loan data
+  const activeLoans = loans.filter(
     (loan) => loan.status === "Active"
   );
 
-  const returnedLoans = demoLoans.filter(
+  const returnedLoans = loans.filter(
     (loan) => loan.status === "Returned"
   );
 
@@ -150,9 +158,15 @@ export default function MyLoans() {
     (loan) => daysUntil(loan.dueDate) < 0
   );
 
-  const filteredLoans = demoLoans.filter((loan) => {
-    if (filter === "Active") return loan.status === "Active";
-    if (filter === "Returned") return loan.status === "Returned";
+  const filteredLoans = loans.filter((loan) => {
+    if (filter === "Active") {
+      return loan.status === "Active";
+    }
+
+    if (filter === "Returned") {
+      return loan.status === "Returned";
+    }
+
     return true;
   });
 
@@ -161,25 +175,24 @@ export default function MyLoans() {
       label: "Active Loans",
       value: activeLoans.length,
       icon: BookMarked,
-      color: "#D8EDE8"
+      color: "#D8EDE8",
     },
     {
       label: "Due Soon",
       value: dueSoonLoans.length,
       icon: Clock3,
-      color: "#F9E8B5"
+      color: "#F9E8B5",
     },
     {
       label: "Returned Books",
       value: returnedLoans.length,
       icon: CheckCircle2,
-      color: "#F6D7D1"
-    }
+      color: "#F6D7D1",
+    },
   ];
 
   return (
     <div className="space-y-8">
-
       {/* HEADER */}
       <header>
         <p className="text-[#A29A90] text-sm font-medium">
@@ -207,7 +220,10 @@ export default function MyLoans() {
               className="rounded-[24px] p-6 min-h-40 flex flex-col justify-between"
             >
               <div className="w-11 h-11 bg-white/50 rounded-xl flex items-center justify-center">
-                <Icon size={22} className="text-[#292929]" />
+                <Icon
+                  size={22}
+                  className="text-[#292929]"
+                />
               </div>
 
               <div className="mt-5">
@@ -225,10 +241,14 @@ export default function MyLoans() {
       </section>
 
       {/* LOAN ALERTS */}
-      {(dueSoonLoans.length > 0 || overdueLoans.length > 0) && (
+      {(dueSoonLoans.length > 0 ||
+        overdueLoans.length > 0) && (
         <section className="bg-[#FFF1D8] rounded-[24px] p-5 flex items-start gap-4">
           <div className="w-11 h-11 bg-white/60 rounded-xl flex items-center justify-center shrink-0">
-            <Clock3 size={22} className="text-[#A46A20]" />
+            <Clock3
+              size={22}
+              className="text-[#A46A20]"
+            />
           </div>
 
           <div>
@@ -250,7 +270,10 @@ export default function MyLoans() {
         <div className="flex flex-wrap items-center justify-between gap-4 mb-7">
           <div>
             <div className="flex items-center gap-2">
-              <History size={22} className="text-[#292929]" />
+              <History
+                size={22}
+                className="text-[#292929]"
+              />
 
               <h2 className="text-xl font-bold text-[#292929]">
                 Borrowing History
@@ -262,21 +285,25 @@ export default function MyLoans() {
             </p>
           </div>
 
+          {/* FILTERS */}
           <div className="flex flex-wrap gap-2">
-            {["All Loans", "Active", "Returned"].map((item) => (
-              <button
-                key={item}
-                onClick={() => setFilter(item)}
-                aria-pressed={filter === item}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
-                  filter === item
-                    ? "bg-[#F5C96A] text-[#292929]"
-                    : "bg-[#F7F5F0] text-[#85817B] hover:text-[#292929]"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
+            {["All Loans", "Active", "Returned"].map(
+              (item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setFilter(item)}
+                  aria-pressed={filter === item}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
+                    filter === item
+                      ? "bg-[#F5C96A] text-[#292929]"
+                      : "bg-[#F7F5F0] text-[#85817B] hover:text-[#292929]"
+                  }`}
+                >
+                  {item}
+                </button>
+              )
+            )}
           </div>
         </div>
 
@@ -291,16 +318,21 @@ export default function MyLoans() {
                 className="border border-[#EEEAE4] rounded-[20px] p-4 md:p-5"
               >
                 <div className="flex flex-col md:flex-row md:items-center gap-5">
-
-                  {/* COVER */}
+                  {/* BOOK COVER */}
                   <div
-                    style={{ backgroundColor: loan.color }}
+                    style={{
+                      backgroundColor:
+                        loan.color || "#A9D7D0",
+                    }}
                     className="w-20 h-24 rounded-xl flex items-center justify-center shrink-0"
                   >
-                    <BookOpen size={32} className="text-[#292929]" />
+                    <BookOpen
+                      size={32}
+                      className="text-[#292929]"
+                    />
                   </div>
 
-                  {/* BOOK INFO */}
+                  {/* BOOK INFORMATION */}
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-[#292929] text-base">
                       {loan.title}
@@ -313,7 +345,8 @@ export default function MyLoans() {
                     <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4">
                       <span className="flex items-center gap-2 text-xs text-[#777D78]">
                         <CalendarDays size={15} />
-                        Borrowed: {formatDate(loan.borrowedDate)}
+                        Borrowed:{" "}
+                        {formatDate(loan.borrowedDate)}
                       </span>
 
                       <span className="flex items-center gap-2 text-xs text-[#777D78]">
@@ -324,23 +357,38 @@ export default function MyLoans() {
                       {loan.returnedDate && (
                         <span className="flex items-center gap-2 text-xs text-[#27816B]">
                           <CheckCircle2 size={15} />
-                          Returned: {formatDate(loan.returnedDate)}
+                          Returned:{" "}
+                          {formatDate(loan.returnedDate)}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {/* STATUS */}
-                  <div className="md:self-start">
+                  {/* STATUS AND RETURN ACTION */}
+                  <div className="flex flex-col items-start gap-3 md:items-end md:self-start">
                     <span
                       style={{
-                        backgroundColor: status.background,
-                        color: status.color
+                        backgroundColor:
+                          status.background,
+                        color: status.color,
                       }}
                       className="inline-flex items-center px-4 py-2 rounded-full text-xs font-bold"
                     >
                       {status.label}
                     </span>
+
+                    {loan.status === "Active" &&
+                      typeof onReturn === "function" && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            onReturn(loan.id)
+                          }
+                          className="rounded-xl bg-[#123D30] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#1C5846]"
+                        >
+                          Return Book
+                        </button>
+                      )}
                   </div>
                 </div>
               </article>
@@ -348,6 +396,7 @@ export default function MyLoans() {
           })}
         </div>
 
+        {/* EMPTY STATE */}
         {filteredLoans.length === 0 && (
           <div className="py-14 text-center">
             <BookOpen
@@ -368,12 +417,15 @@ export default function MyLoans() {
 
       {/* FOOTER */}
       <div className="bg-[#E9F4F0] rounded-[20px] p-5 flex items-start gap-3">
-        <Info size={20} className="text-[#276C64] shrink-0 mt-0.5" />
+        <Info
+          size={20}
+          className="text-[#276C64] shrink-0 mt-0.5"
+        />
 
         <p className="text-sm text-[#55736C] leading-relaxed">
-          This page currently displays demonstration loan records.
-          Real borrowing history, return actions, and live due dates
-          will be connected to the backend later.
+          This is a frontend demonstration of the library
+          borrowing system. Borrowing and returning will
+          use real database records after backend integration.
         </p>
       </div>
     </div>

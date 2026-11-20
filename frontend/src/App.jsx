@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-
+import { books } from "./data/books";
 import Sidebar from "./components/Sidebar";
 import AdminSidebar from "./components/AdminSidebar";
 
@@ -32,6 +32,89 @@ function App() {
   const [previewRole, setPreviewRole] = useState("student");
 
   // Admin navigation
+  // Frontend-only borrowing records
+const [loans, setLoans] = useState([]);
+// Synchronize book availability with active demo loans
+const catalogueBooks = books.map((book) => {
+  const hasActiveLoan = loans.some(
+    (loan) =>
+      String(loan.bookId) === String(book.id) &&
+      loan.status === "Active"
+  );
+
+  return {
+    ...book,
+    available: Boolean(book.available) && !hasActiveLoan,
+  };
+});
+const bookColors = [
+  "#E7B7A4",
+  "#A9D7D0",
+  "#D8C5EA",
+  "#F5C96A",
+  "#C5D8B8",
+  "#F2C8D8",
+];
+
+const handleBorrow = (book) => {
+  if (!book?.available) return;
+
+  const alreadyBorrowed = loans.some(
+    (loan) =>
+      String(loan.bookId) === String(book.id) &&
+      loan.status === "Active"
+  );
+
+  if (alreadyBorrowed) return;
+
+  const today = new Date();
+  const dueDate = new Date(today);
+  dueDate.setDate(dueDate.getDate() + 14);
+
+  const toLocalDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const bookIndex = books.findIndex(
+    (item) => String(item.id) === String(book.id)
+  );
+
+  const newLoan = {
+    id: crypto.randomUUID(),
+    bookId: book.id,
+    title: book.title,
+    author: book.author,
+    borrowedDate: toLocalDate(today),
+    dueDate: toLocalDate(dueDate),
+    returnedDate: null,
+    status: "Active",
+    color: bookColors[
+      (bookIndex >= 0 ? bookIndex : 0) % bookColors.length
+    ],
+  };
+
+  setLoans((previous) => [newLoan, ...previous]);
+  setActivePage("My Loans");
+};
+
+const handleReturn = (loanId) => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const returnedDate = `${year}-${month}-${day}`;
+
+  setLoans((previous) =>
+    previous.map((loan) =>
+      loan.id === loanId && loan.status === "Active"
+        ? { ...loan, status: "Returned", returnedDate }
+        : loan
+    )
+  );
+};
   const [adminPage, setAdminPage] = useState("Admin Dashboard");
 
   // Temporary demo account information (not real authentication)
@@ -82,20 +165,43 @@ function App() {
         return <Dashboard setActivePage={setActivePage} />;
 
       case "Book Catalogue":
-        return <BookCatalogue onViewDetails={openBookDetails} />;
+  return (
+    <BookCatalogue
+      books={catalogueBooks}
+      onViewDetails={openBookDetails}
+    />
+  );
 
       case "Book Details":
         return selectedBook ? (
           <BookDetails
-            book={selectedBook}
-            onBack={backToCatalogue}
-          />
+  book={
+    catalogueBooks.find(
+      (book) => String(book.id) === String(selectedBook.id)
+    ) ?? selectedBook
+  }
+  onBack={backToCatalogue}
+  onBorrow={handleBorrow}
+  isBorrowed={loans.some(
+    (loan) =>
+      String(loan.bookId) === String(selectedBook.id) &&
+      loan.status === "Active"
+  )}
+/>
         ) : (
-          <BookCatalogue onViewDetails={openBookDetails} />
+          <BookCatalogue
+  books={catalogueBooks}
+  onViewDetails={openBookDetails}
+/>
         );
 
       case "My Loans":
-        return <MyLoans />;
+  return (
+    <MyLoans
+      loans={loans}
+      onReturn={handleReturn}
+    />
+  );
 
       case "My Profile":
         return <MyProfile />;

@@ -10,7 +10,7 @@ import {
   Sparkles
 } from "lucide-react";
 
-import { books } from "../data/books";
+
 
 const bookColors = [
   "#E7B7A4",
@@ -21,7 +21,10 @@ const bookColors = [
   "#F2C8D8"
 ];
 
-export default function BookCatalogue({ onViewDetails }) {
+export default function BookCatalogue({
+  books = [],
+  onViewDetails,
+}) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All Categories");
   const [availability, setAvailability] = useState("All Books");

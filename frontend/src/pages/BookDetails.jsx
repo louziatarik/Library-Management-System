@@ -20,7 +20,12 @@ const bookColors = [
   "#F2C8D8"
 ];
 
-export default function BookDetails({ book, onBack }) {
+export default function BookDetails({
+  book,
+  onBack,
+  onBorrow,
+  isBorrowed = false,
+}) {
   if (!book) {
     return (
       <div className="bg-white rounded-[24px] p-10 text-center">
@@ -176,29 +181,40 @@ export default function BookDetails({ book, onBack }) {
               </p>
             </div>
 
-            {/* BORROW BUTTON */}
-            <div className="mt-auto pt-8">
-              <button
-                disabled
-                title="Borrowing will be available after backend integration"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#F2F0EA] text-[#9B978F] px-7 py-4 rounded-xl font-bold text-sm cursor-not-allowed"
-              >
-                <BookMarked size={19} />
-                {book.available
-                  ? "Borrow Book — Coming Soon"
-                  : "Currently Unavailable"}
-              </button>
+           {/* BORROW BUTTON */}
+<div className="mt-auto pt-8">
+  <button
+    type="button"
+    onClick={() => onBorrow?.(book)}
+    disabled={!book.available || isBorrowed}
+    className={`w-full sm:w-auto inline-flex items-center justify-center gap-3 px-7 py-4 rounded-xl font-bold text-sm transition-colors ${
+      book.available && !isBorrowed
+        ? "bg-[#123D30] text-white hover:bg-[#1C5846] cursor-pointer"
+        : "bg-[#F2F0EA] text-[#9B978F] cursor-not-allowed"
+    }`}
+  >
+    <BookMarked size={19} />
 
-              <p className="text-xs text-[#A29A90] mt-3">
-                Book borrowing will be enabled when the backend
-                and authentication system are connected.
-              </p>
-            </div>
+    {isBorrowed
+      ? "Already Borrowed"
+      : book.available
+        ? "Borrow Book"
+        : "Currently Unavailable"}
+  </button>
+
+  <p className="text-xs text-[#A29A90] mt-3">
+    {isBorrowed
+      ? "This book is already in your demo loans."
+      : "Borrowing is simulated in this frontend prototype."}
+  </p>
+</div>
+
           </div>
         </div>
       </div>
 
       {/* INFORMATION NOTICE */}
+      
       <div className="bg-[#E9F4F0] rounded-[20px] p-5 flex items-start gap-3">
         <Info
           size={20}
