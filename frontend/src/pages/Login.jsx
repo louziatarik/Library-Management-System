@@ -15,20 +15,30 @@ export default function Login({ onLogin, onRegister, onBack }) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setError("");
+  const handleSubmit = async (event) => {
+  event.preventDefault();
+  setError("");
 
-    if (!email.trim() || !password) {
-      setError("Please enter your email and password.");
-      return;
+  if (!email.trim() || !password) {
+    setError("Please enter your email and password.");
+    return;
+  }
+
+  if (typeof onLogin === "function") {
+    try {
+      const result = await onLogin({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      if (result?.error) {
+        setError(result.error);
+      }
+    } catch {
+      setError("Login failed. Please try again.");
     }
-
-    if (typeof onLogin === "function") {
-      onLogin({ email: email.trim(), password });
-    }
-  };
-
+  }
+};
   return (
     <div className="min-h-screen bg-[#F7F5F0] flex items-center justify-center px-5 py-12 relative overflow-hidden">
       <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#F5C96A]/20 blur-3xl pointer-events-none" />

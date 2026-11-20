@@ -30,38 +30,48 @@ export default function Register({ onRegister, onLogin, onBack }) {
     setError("");
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setError("");
+  
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  setError("");
 
-    if (
-      !form.fullName.trim() ||
-      !form.email.trim() ||
-      !form.password ||
-      !form.confirmPassword
-    ) {
-      setError("Please complete all fields.");
-      return;
-    }
+  if (
+    !form.fullName.trim() ||
+    !form.email.trim() ||
+    !form.password ||
+    !form.confirmPassword
+  ) {
+    setError("Please complete all fields.");
+    return;
+  }
 
-    if (form.password.length < 8) {
-      setError("Password must contain at least 8 characters.");
-      return;
-    }
+  if (form.password.length < 8) {
+    setError("Password must contain at least 8 characters.");
+    return;
+  }
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+  if (form.password !== form.confirmPassword) {
+    setError("Passwords do not match.");
+    return;
+  }
 
-    if (typeof onRegister === "function") {
-      onRegister({
+  if (typeof onRegister === "function") {
+    try {
+      const result = await onRegister({
         fullName: form.fullName.trim(),
-        email: form.email.trim(),
+        email: form.email.trim().toLowerCase(),
         password: form.password,
       });
+
+      if (result?.error) {
+        setError(result.error);
+      }
+    } catch {
+      setError("Registration failed. Please try again.");
     }
-  };
+  }
+};
+
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F7F5F0] px-5 py-12">
