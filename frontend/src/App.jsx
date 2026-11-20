@@ -79,7 +79,8 @@ function App() {
     switch (adminPage) {
       case "Admin Dashboard":
         return <AdminDashboard />;
-
+case "Manage Books":
+  return <ManageBooks />;
 case "Manage Categories":
   return <ManageCategories />;
 
