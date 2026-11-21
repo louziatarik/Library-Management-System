@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useLocation,
   useNavigate,
@@ -15,7 +15,7 @@ import {
   loginDemo,
 } from "./services/demoAuth";
 import { books } from "./data/books";
-
+import { fetchBooks } from "./services/booksApi";
 import Sidebar from "./components/Sidebar";
 import AdminSidebar from "./components/AdminSidebar";
 
@@ -248,7 +248,32 @@ function App() {
 
   const [loans, setLoans] = useState([]);
   const [demoUser, setDemoUser] = useState(null);
+const [apiBooks, setApiBooks] = useState([]);
 
+useEffect(() => {
+  let active = true;
+
+  async function loadBooks() {
+    try {
+      const result = await fetchBooks();
+
+      if (active) {
+        setApiBooks(result);
+        console.log("BookNest API books loaded:", result.length);
+      }
+    } catch (error) {
+      console.warn("BookNest API unavailable:", error.message);
+    }
+  }
+
+  loadBooks();
+
+  return () => {
+    active = false;
+  };
+}, []);
+
+const libraryBooks = apiBooks.length > 0 ? apiBooks : books;
   const path = location.pathname;
   const query = new URLSearchParams(location.search);
 const roleSelectionMode =
@@ -303,7 +328,7 @@ const roleSelectionMode =
   // BOOK AVAILABILITY
   // ----------------------------------
 
-  const catalogueBooks = books.map((book) => {
+  const catalogueBooks = libraryBooks.map((book) => {
     const hasActiveLoan = loans.some(
       (loan) =>
         String(loan.bookId) === String(book.id) &&
@@ -484,7 +509,7 @@ const handleRegister = ({
       dueDate.getDate() + 14
     );
 
-    const bookIndex = books.findIndex(
+    const bookIndex = libraryBooks.findIndex(
       (item) =>
         String(item.id) === String(book.id)
     );
