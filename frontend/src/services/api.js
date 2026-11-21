@@ -2,7 +2,7 @@
 import { getAccessToken } from "./tokenStorage";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+  import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 async function apiRequest(endpoint, options = {}) {
   const headers = new Headers(options.headers);
