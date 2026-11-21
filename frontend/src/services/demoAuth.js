@@ -98,3 +98,57 @@ export function loginDemo({
 
   return { user: account };
 }
+// ----------------------------------
+// DEMO SESSION MANAGEMENT
+// ----------------------------------
+
+// Demo-only browser session.
+// Not a secure authentication mechanism.
+
+const SESSION_KEY = "booknest_demo_session";
+
+export function saveDemoSession(user) {
+  if (!user || user.role !== "student") {
+    return;
+  }
+
+  sessionStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify({
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role,
+    })
+  );
+}
+
+export function getDemoSession() {
+  try {
+    const saved = sessionStorage.getItem(SESSION_KEY);
+
+    if (!saved) return null;
+
+    const session = JSON.parse(saved);
+
+    if (!session || session.role !== "student") {
+      return null;
+    }
+
+    // Ensure the account still exists in demo storage.
+    const account = getAccounts().find(
+      (item) =>
+        item.id === session.id &&
+        item.email === session.email &&
+        item.role === "student"
+    );
+
+    return account || null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearDemoSession() {
+  sessionStorage.removeItem(SESSION_KEY);
+}

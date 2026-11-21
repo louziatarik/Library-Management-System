@@ -13,6 +13,8 @@ import {
 import {
   registerStudent,
   loginDemo,
+  saveDemoSession,
+  getDemoSession,
 } from "./services/demoAuth";
 import { books } from "./data/books";
 import { fetchBooks } from "./services/booksApi";
@@ -247,7 +249,7 @@ function App() {
   const location = useLocation();
 
   const [loans, setLoans] = useState([]);
-  const [demoUser, setDemoUser] = useState(null);
+  const [demoUser, setDemoUser] = useState(getDemoSession);
 const [apiBooks, setApiBooks] = useState([]);
 
 useEffect(() => {
@@ -411,7 +413,7 @@ const handleLogin = ({ email, password }) => {
   }
 
   setDemoUser(result.user);
-
+saveDemoSession(result.user);
   if (result.user.role === "admin") {
     navigate("/admin/dashboard");
   } else {
@@ -454,6 +456,7 @@ const handleRegister = ({
   }
 
   setDemoUser(result.user);
+  saveDemoSession(result.user);
   navigate("/student/dashboard");
 
   return { success: true };
