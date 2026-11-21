@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
-  ArrowLeft,
   BookOpen,
   LibraryBig,
   Sparkles,
@@ -45,20 +44,7 @@ const features = [
 ];
 
 // ----------------------------------
-// BOOK COLORS
-// ----------------------------------
-
-const bookColors = [
-  "#A9D7D0",
-  "#F5C96A",
-  "#D8C5EA",
-  "#E7B7A4",
-  "#C5D8B8",
-  "#F2C8D8",
-];
-
-// ----------------------------------
-// 3D BOOK COMPONENT
+// BOOK COVER COMPONENT
 // ----------------------------------
 
 function CarouselBook({ book, active }) {
@@ -70,99 +56,51 @@ function CarouselBook({ book, active }) {
       ? `https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg?default=false`
       : null);
 
-  const imageFailed =
-    !coverUrl || failedUrl === coverUrl;
+  const imageFailed = !coverUrl || failedUrl === coverUrl;
 
   return (
     <div
       className={`booknest-carousel-float relative h-full w-full ${
         active ? "booknest-carousel-float-active" : ""
       }`}
-      style={{
-        transformStyle: "preserve-3d",
-      }}
     >
-      {/* BOOK BODY */}
       <div
-        className="relative h-full w-full"
+        className="relative h-full w-full overflow-hidden rounded-[7px] bg-[#F7F5F0]"
         style={{
-          transformStyle: "preserve-3d",
+          boxShadow:
+            "8px 15px 28px rgba(18,61,48,0.22), inset 6px 0 10px rgba(0,0,0,0.12)",
         }}
       >
-        {/* BACK COVER */}
-<div
-  className="absolute inset-0 rounded-[5px] bg-[#173A2D]"
-  style={{
-    transform: "translateZ(-10px) rotateY(180deg)",
-    backfaceVisibility: "hidden",
-    WebkitBackfaceVisibility: "hidden",
-  }}
-/>
-
-        {/* BOOK SPINE */}
-        <div
-          className="absolute bottom-0 left-0 top-0 w-[20px] rounded-l-[4px]"
-          style={{
-            background:
-              "linear-gradient(90deg, #102A20 0%, #426B58 48%, #102A20 100%)",
-            transform:
-              "translateX(-10px) rotateY(-90deg)",
-            transformOrigin: "right center",
-          }}
-        />
-
-        {/* PAGE EDGES */}
-        <div
-          className="absolute bottom-[5px] right-[-8px] top-[5px] w-[17px] rounded-r-[3px]"
-          style={{
-            background:
-              "repeating-linear-gradient(to bottom, #fffdf5 0px, #fffdf5 2px, #ddd8c9 3px)",
-            transform: "rotateY(45deg)",
-          }}
-        />
-
-        {/* FRONT COVER */}
-        <div
-  className="absolute inset-0 overflow-hidden rounded-l-[3px] rounded-r-[6px] bg-[#F7F5F0]"
-  style={{
-    transform: "translateZ(10px)",
-    backfaceVisibility: "hidden",
-    WebkitBackfaceVisibility: "hidden",
-    boxShadow:
-      "inset 7px 0 10px rgba(0,0,0,0.18), 5px 8px 15px rgba(0,0,0,0.18)",
-  }}
->
-          {!imageFailed ? (
-            <img
-              src={coverUrl}
-              alt={`Cover of ${book.title}`}
-              loading="lazy"
-              onError={() => setFailedUrl(coverUrl)}
-              className="h-full w-full object-fill"
+        {!imageFailed ? (
+          <img
+            src={coverUrl}
+            alt={`Cover of ${book.title}`}
+            loading="lazy"
+            onError={() => setFailedUrl(coverUrl)}
+            className="block h-full w-full object-fill"
+          />
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center bg-[#F7F5F0] p-4 text-center">
+            <BookOpen
+              size={36}
+              className="mb-5 text-[#123D30]"
             />
-          ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center bg-[#F7F5F0] p-4 text-center">
-              <BookOpen
-                size={36}
-                className="mb-5 text-[#123D30]"
-              />
 
-              <span className="text-sm font-extrabold leading-tight text-[#123D30]">
-                {book.title}
-              </span>
+            <span className="text-sm font-extrabold leading-tight text-[#123D30]">
+              {book.title}
+            </span>
 
-              <span className="mt-3 text-xs text-[#85817B]">
-                {book.author}
-              </span>
-            </div>
-          )}
+            <span className="mt-3 text-xs text-[#85817B]">
+              {book.author}
+            </span>
+          </div>
+        )}
 
-          {/* SPINE SHADOW */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-[12px] bg-gradient-to-r from-black/30 to-transparent" />
+        {/* SPINE SHADOW */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-[12px] bg-gradient-to-r from-black/30 to-transparent" />
 
-          {/* LIGHT REFLECTION */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15" />
-        </div>
+        {/* LIGHT REFLECTION */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15" />
       </div>
     </div>
   );
@@ -179,38 +117,27 @@ function FeaturedBooksCarousel({ onExplore }) {
   const [autoPlay, setAutoPlay] = useState(true);
 
   const total = featuredBooks.length;
-
   const activeBook = featuredBooks[activeIndex];
 
-  // ----------------------------------
   // AUTOPLAY
-  // ----------------------------------
-
   useEffect(() => {
     if (!autoPlay || total <= 1) return;
 
     const interval = setInterval(() => {
-      setActiveIndex((previous) =>
-        (previous + 1) % total
-      );
+      setActiveIndex((previous) => (previous + 1) % total);
     }, 4500);
 
     return () => clearInterval(interval);
   }, [autoPlay, total]);
 
-  // ----------------------------------
   // NAVIGATION
-  // ----------------------------------
-
   const goNext = () => {
-    setActiveIndex((previous) =>
-      (previous + 1) % total
-    );
+    setActiveIndex((previous) => (previous + 1) % total);
   };
 
   const goPrevious = () => {
-    setActiveIndex((previous) =>
-      (previous - 1 + total) % total
+    setActiveIndex(
+      (previous) => (previous - 1 + total) % total
     );
   };
 
@@ -218,10 +145,7 @@ function FeaturedBooksCarousel({ onExplore }) {
     setActiveIndex(index);
   };
 
-  // ----------------------------------
   // POSITION CALCULATION
-  // ----------------------------------
-
   const getPosition = (index) => {
     let offset = index - activeIndex;
 
@@ -243,9 +167,16 @@ function FeaturedBooksCarousel({ onExplore }) {
       className="relative overflow-hidden border-t border-[#EAE5DB] bg-[#FFFDF8] px-4 py-20 sm:px-6 md:px-10"
       onMouseEnter={() => setAutoPlay(false)}
       onMouseLeave={() => setAutoPlay(true)}
+      onFocusCapture={() => setAutoPlay(false)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setAutoPlay(true);
+        }
+      }}
       aria-label="Featured books carousel"
     >
       <div className="mx-auto max-w-7xl">
+
         {/* SECTION HEADER */}
         <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
@@ -262,10 +193,9 @@ function FeaturedBooksCarousel({ onExplore }) {
 
           <div className="max-w-sm">
             <p className="text-sm leading-7 text-[#737770]">
-              Discover the books shaping curious
-              minds. Explore programming,
-              technology, design, and more
-              through our growing collection.
+              Discover the books shaping curious minds.
+              Explore programming, technology, design,
+              and more through our growing collection.
             </p>
 
             <button
@@ -281,6 +211,7 @@ function FeaturedBooksCarousel({ onExplore }) {
 
         {/* CAROUSEL STAGE */}
         <div className="relative overflow-hidden rounded-[32px] bg-[#F3EFE5]">
+
           {/* GRID BACKGROUND */}
           <div
             className="pointer-events-none absolute inset-0 opacity-35"
@@ -311,9 +242,8 @@ function FeaturedBooksCarousel({ onExplore }) {
 
           {/* 3D CAROUSEL */}
           <div
-className="relative mx-auto h-[430px] max-w-5xl sm:h-[500px] md:h-[560px]"            style={{
-              perspective: "1200px",
-            }}
+            className="relative mx-auto h-[380px] max-w-5xl sm:h-[470px] md:h-[530px]"
+            style={{ perspective: "1200px" }}
           >
             {/* GROUND SHADOW */}
             <div
@@ -324,15 +254,14 @@ className="relative mx-auto h-[430px] max-w-5xl sm:h-[500px] md:h-[560px]"      
             {featuredBooks.map((book, index) => {
               const offset = getPosition(index);
               const distance = Math.abs(offset);
-
               const hidden = distance > 2;
 
-const translateX = offset * 60;
-const rotateY = offset * -15;
-const rotateZ = offset * -4;
-const scale = 1 - distance * 0.12;
-const translateZ = -distance * 40;
-const translateY = distance * 10;
+              const translateX = offset * 72;
+              const translateY = distance * 14;
+              const rotateY = offset * -14;
+              const rotateZ = offset * -4;
+              const scale = 1 - distance * 0.14;
+
               return (
                 <button
                   key={book.id}
@@ -347,21 +276,16 @@ const translateY = distance * 10;
                       translate(-50%, -50%)
                       translateX(${translateX}%)
                       translateY(${translateY}px)
-                      translateZ(${translateZ}px)
                       rotateY(${rotateY}deg)
                       rotateZ(${rotateZ}deg)
                       scale(${scale})
                     `,
-                    transformStyle: "preserve-3d",
                     zIndex: 20 - distance,
                     opacity: hidden ? 0 : 1,
-                    pointerEvents: hidden
-                      ? "none"
-                      : "auto",
+                    pointerEvents: hidden ? "none" : "auto",
                   }}
                 >
                   <CarouselBook
-                    key={`${book.id}-${book.cover || book.isbn}`}
                     book={book}
                     active={index === activeIndex}
                   />
@@ -370,7 +294,7 @@ const translateY = distance * 10;
             })}
           </div>
 
-          {/* SELECTED BOOK INFORMATION */}
+          {/* ACTIVE BOOK DETAILS */}
           <div className="relative z-10 mx-auto max-w-2xl px-6 pb-9 text-center">
             <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#267458]">
               {activeBook.category}
@@ -436,9 +360,7 @@ const translateY = distance * 10;
                     onClick={() => selectBook(index)}
                     aria-label={`Go to ${book.title}`}
                     aria-current={
-                      index === activeIndex
-                        ? "true"
-                        : undefined
+                      index === activeIndex ? "true" : undefined
                     }
                     className={`h-2.5 rounded-full transition-all duration-300 ${
                       index === activeIndex
@@ -461,7 +383,7 @@ const translateY = distance * 10;
           </div>
         </div>
 
-        {/* SECTION FOOTER */}
+        {/* COLLECTION FOOTER */}
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-[#85817B]">
             A curated selection from our library.
@@ -494,12 +416,8 @@ export default function LandingPage({
     <div className="min-h-screen overflow-hidden bg-[#F7F5F0] text-[#292929]">
       <style>{`
         @keyframes bookFloat {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-12px);
-          }
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-12px); }
         }
 
         @keyframes softGlow {
@@ -514,21 +432,13 @@ export default function LandingPage({
         }
 
         @keyframes carouselFloat {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
         }
 
         @keyframes carouselFloatActive {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-16px);
-          }
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-16px); }
         }
 
         .booknest-floating {
@@ -557,7 +467,7 @@ export default function LandingPage({
         }
       `}</style>
 
-      {/* NAVIGATION */}
+      {/* HEADER */}
       <header className="relative z-20 mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-6 md:px-10">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#123D30] text-[#F5C96A]">
@@ -599,9 +509,9 @@ export default function LandingPage({
       </header>
 
       <main>
-        {/* HERO */}
+        {/* HERO SECTION */}
         <section className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pb-16 pt-8 text-center md:px-10">
-          {/* BACKGROUND DECORATIONS */}
+
           <div
             aria-hidden="true"
             className="pointer-events-none absolute left-[-140px] top-16 h-80 w-80 rounded-full bg-[#A9D7D0]/35 blur-3xl"
@@ -621,27 +531,23 @@ export default function LandingPage({
           </h1>
 
           <p className="relative z-10 mt-7 max-w-2xl text-base leading-8 text-[#5F625C] sm:text-lg">
-            A universe of stories, knowledge,
-            and inspiration. Discover books,
-            follow your curiosity, and make
-            every chapter count.
+            A universe of stories, knowledge, and inspiration.
+            Discover books, follow your curiosity, and make every
+            chapter count.
           </p>
 
-          {/* FLOATING HERO BOOK */}
+          {/* HERO IMAGE */}
           <div className="relative my-4 flex w-full max-w-3xl items-center justify-center py-2 sm:my-5">
-            {/* GOLDEN GLOW */}
             <div
               aria-hidden="true"
               className="booknest-glow pointer-events-none absolute h-48 w-[75%] rounded-full bg-[#F5C96A]/35 blur-[65px]"
             />
 
-            {/* MINT LIGHTING */}
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -left-8 top-1/4 h-40 w-40 rounded-full bg-[#A9D7D0]/30 blur-3xl"
             />
 
-            {/* SHADOW */}
             <div
               aria-hidden="true"
               className="absolute bottom-3 h-8 w-[65%] rounded-full bg-[#123D30]/15 blur-2xl"
@@ -655,14 +561,12 @@ export default function LandingPage({
             />
           </div>
 
-          {/* HERO CTA */}
           <button
             type="button"
             onClick={onExplore}
             className="group relative z-10 inline-flex items-center gap-3 rounded-full bg-[#F5C96A] px-9 py-4 text-base font-bold text-[#292929] shadow-[0_12px_30px_rgba(200,155,60,0.25)] transition duration-300 hover:-translate-y-1 hover:bg-[#E9BA50]"
           >
             Explore Library
-
             <ArrowRight
               size={20}
               className="transition-transform group-hover:translate-x-1"
@@ -674,12 +578,10 @@ export default function LandingPage({
           </span>
         </section>
 
-        {/* INTERACTIVE 3D FEATURED BOOKS */}
-        <FeaturedBooksCarousel
-          onExplore={onExplore}
-        />
+        {/* FEATURED BOOKS */}
+        <FeaturedBooksCarousel onExplore={onExplore} />
 
-        {/* EXISTING FEATURES */}
+        {/* FEATURES SECTION */}
         <section className="border-t border-[#EAE5DB] bg-white/60 px-6 py-20 md:px-10">
           <div className="mx-auto max-w-7xl">
             <div className="mb-12 text-center">
@@ -694,21 +596,14 @@ export default function LandingPage({
 
             <div className="grid gap-6 md:grid-cols-3">
               {features.map(
-                ({
-                  icon: Icon,
-                  title,
-                  description,
-                  color,
-                }) => (
+                ({ icon: Icon, title, description, color }) => (
                   <div
                     key={title}
                     className="rounded-[28px] border border-[#EEEAE4] bg-white p-8 shadow-[0_12px_35px_rgba(35,48,38,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                   >
                     <div
                       className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl"
-                      style={{
-                        backgroundColor: color,
-                      }}
+                      style={{ backgroundColor: color }}
                     >
                       <Icon
                         size={25}
@@ -733,9 +628,7 @@ export default function LandingPage({
 
       {/* FOOTER */}
       <footer className="bg-[#123D30] px-6 py-8 text-center text-xs tracking-[0.15em] text-[#F7F5F0]">
-        © {new Date().getFullYear()} BOOKNEST
-        {" — "}
-        MADE FOR DISCOVERY
+        © {new Date().getFullYear()} BOOKNEST — MADE FOR DISCOVERY
       </footer>
     </div>
   );
