@@ -18,6 +18,10 @@ import {
 } from "./services/demoAuth";
 import { books } from "./data/books";
 import { fetchBooks } from "./services/booksApi";
+import {
+  getStudentLoans,
+  saveStudentLoans,
+} from "./services/demoLoans";
 import Sidebar from "./components/Sidebar";
 import AdminSidebar from "./components/AdminSidebar";
 
@@ -248,8 +252,16 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [loans, setLoans] = useState([]);
-  const [demoUser, setDemoUser] = useState(getDemoSession);
+ const [demoUser, setDemoUser] = useState(getDemoSession);
+
+const [loans, setLoans] = useState(() => {
+  const user = getDemoSession();
+  return user?.role === "student"
+    ? getStudentLoans(user.id)
+    : [];
+});
+
+
 const [apiBooks, setApiBooks] = useState([]);
 
 useEffect(() => {
@@ -414,6 +426,11 @@ const handleLogin = ({ email, password }) => {
 
   setDemoUser(result.user);
 saveDemoSession(result.user);
+setLoans(
+  result.user.role === "student"
+    ? getStudentLoans(result.user.id)
+    : []
+);
   if (result.user.role === "admin") {
     navigate("/admin/dashboard");
   } else {
@@ -456,8 +473,12 @@ const handleRegister = ({
   }
 
   setDemoUser(result.user);
-  saveDemoSession(result.user);
-  navigate("/student/dashboard");
+saveDemoSession(result.user);
+
+// Load this student's demo borrowing history.
+setLoans(getStudentLoans(result.user.id));
+
+navigate("/student/dashboard");
 
   return { success: true };
 };
@@ -533,17 +554,23 @@ const handleRegister = ({
         ],
     };
 
-    setLoans((previous) => [
-      newLoan,
-      ...previous,
-    ]);
+    setLoans((previous) => {
+  const updatedLoans = [
+    newLoan,
+    ...previous,
+  ];
 
-    navigate("/student/loans");
-  };
+  saveStudentLoans(demoUser.id, updatedLoans);
 
-  // ----------------------------------
-  // RETURN BOOK
-  // ----------------------------------
+    return updatedLoans;
+});
+
+navigate("/student/loans");
+};
+
+// ----------------------------------
+// RETURN BOOK
+// ----------------------------------
 
   const handleReturn = (loanId) => {
     if (!demoUser || demoUser.role !== "student") {
@@ -553,18 +580,23 @@ const handleRegister = ({
     const returnedDate =
       toLocalDate(new Date());
 
-    setLoans((previous) =>
-      previous.map((loan) =>
-        loan.id === loanId &&
-        loan.status === "Active"
-          ? {
-              ...loan,
-              status: "Returned",
-              returnedDate,
-            }
-          : loan
-      )
-    );
+    
+setLoans((previous) => {
+  const updatedLoans = previous.map((loan) =>
+    loan.id === loanId && loan.status === "Active"
+      ? {
+          ...loan,
+          status: "Returned",
+          returnedDate,
+        }
+      : loan
+  );
+
+  saveStudentLoans(demoUser.id, updatedLoans);
+
+  return updatedLoans;
+});
+
   };
 
   // ----------------------------------
