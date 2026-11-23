@@ -151,6 +151,8 @@ export default function BookCatalogue({
     "All Books"
   );
 
+  const [sortBy, setSortBy] = useState("title-asc");
+
   // ----------------------------------
   // CATEGORIES
   // ----------------------------------
@@ -197,6 +199,37 @@ export default function BookCatalogue({
   });
 
   // ----------------------------------
+  // SORT FILTERED BOOKS
+  // ----------------------------------
+
+  const sortedBooks = [...filteredBooks].sort((a, b) => {
+    const compare = (field) =>
+      String(a[field] || "").localeCompare(
+        String(b[field] || ""),
+        undefined,
+        { sensitivity: "base" }
+      );
+
+    switch (sortBy) {
+      case "title-desc":
+        return -compare("title");
+
+      case "author-asc":
+        return compare("author");
+
+      case "author-desc":
+        return -compare("author");
+
+      case "category-asc":
+        return compare("category");
+
+      case "title-asc":
+      default:
+        return compare("title");
+    }
+  });
+
+  // ----------------------------------
   // CLEAR FILTERS
   // ----------------------------------
 
@@ -204,12 +237,14 @@ export default function BookCatalogue({
     setSearch("");
     setCategory("All Categories");
     setAvailability("All Books");
+    setSortBy("title-asc");
   };
 
   const hasFilters =
     search.trim() !== "" ||
     category !== "All Categories" ||
-    availability !== "All Books";
+    availability !== "All Books" ||
+    sortBy !== "title-asc";
 
   // ----------------------------------
   // PAGE
@@ -357,14 +392,36 @@ export default function BookCatalogue({
           </p>
         </div>
 
-        <span className="rounded-full border border-[#EEEAE4] bg-white px-4 py-2 text-sm font-semibold text-[#625B55]">
-          {filteredBooks.length} Books Found
-        </span>
+        <div className="flex flex-wrap items-center gap-3">
+          <label
+            htmlFor="book-sort"
+            className="text-sm font-medium text-[#85817B]"
+          >
+            Sort by
+          </label>
+
+          <select
+            id="book-sort"
+            value={sortBy}
+            onChange={(event) => setSortBy(event.target.value)}
+            className="rounded-xl border border-[#EEEAE4] bg-white px-4 py-2.5 text-sm font-semibold text-[#292929] focus:border-[#D3A843] focus:outline-none"
+          >
+            <option value="title-asc">Title: A?Z</option>
+            <option value="title-desc">Title: Z?A</option>
+            <option value="author-asc">Author: A?Z</option>
+            <option value="author-desc">Author: Z?A</option>
+            <option value="category-asc">Category: A?Z</option>
+          </select>
+
+          <span className="rounded-full border border-[#EEEAE4] bg-white px-4 py-2 text-sm font-semibold text-[#625B55]">
+            {filteredBooks.length} Books Found
+          </span>
+        </div>
       </div>
 
       {/* BOOK GRID */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        {filteredBooks.map((book, index) => {
+        {sortedBooks.map((book, index) => {
           const originalIndex =
             books.findIndex(
               (item) => item.id === book.id
