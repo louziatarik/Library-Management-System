@@ -600,14 +600,13 @@ setLoans((previous) => {
   const renderStudentPage = () => {
     switch (studentPage) {
       case "Dashboard":
-        return (
-          <Dashboard
-            setActivePage={
-              handleStudentNavigation
-            }
-          />
-        );
-
+  return (
+    <Dashboard
+      setActivePage={handleStudentNavigation}
+      books={catalogueBooks}
+      loans={loans}
+    />
+  );
       case "Book Catalogue":
         return (
           <BookCatalogue

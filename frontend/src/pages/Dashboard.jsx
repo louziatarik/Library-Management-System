@@ -18,32 +18,7 @@ import { books } from "../data/books";
 // DASHBOARD STATISTICS
 // ----------------------------------
 
-const stats = [
-  {
-    title: "Available Books",
-    value: "248",
-    icon: BookOpen,
-    background: "#D8EDE8",
-  },
-  {
-    title: "My Borrowed Books",
-    value: "03",
-    icon: BookMarked,
-    background: "#F6D7D1",
-  },
-  {
-    title: "Due Soon",
-    value: "01",
-    icon: Clock3,
-    background: "#F9E8B5",
-  },
-  {
-    title: "Categories",
-    value: "12",
-    icon: Layers3,
-    background: "#DDD4F1",
-  },
-];
+
 
 // ----------------------------------
 // BOOK BACKGROUND COLORS
@@ -101,9 +76,70 @@ function FeaturedBookCover({ book }) {
 // STUDENT DASHBOARD
 // ----------------------------------
 
-export default function Dashboard({ setActivePage }) {
-  const featuredBooks = books.slice(0, 4);
+export default function Dashboard({
+  setActivePage,
+  books: catalogueBooks = [],
+  loans = [],
+}) {
+  const featuredBooks = catalogueBooks.slice(0, 4);
+  const activeLoans = loans.filter(
+  (loan) => loan.status === "Active"
+);
 
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const dueSoonLoans = activeLoans.filter((loan) => {
+  if (!loan.dueDate) return false;
+
+  const [year, month, day] = loan.dueDate
+    .split("-")
+    .map(Number);
+
+  const dueDate = new Date(year, month - 1, day);
+  const daysRemaining = Math.round(
+    (dueDate - today) / (1000 * 60 * 60 * 24)
+  );
+
+  return daysRemaining >= 0 && daysRemaining <= 5;
+});
+
+const availableBooks = catalogueBooks.filter(
+  (book) => book.available
+).length;
+
+const categories = new Set(
+  catalogueBooks
+    .map((book) => book.category)
+    .filter(Boolean)
+);
+
+const stats = [
+  {
+    title: "Available Books",
+    value: availableBooks,
+    icon: BookOpen,
+    background: "#D8EDE8",
+  },
+  {
+    title: "My Borrowed Books",
+    value: activeLoans.length,
+    icon: BookMarked,
+    background: "#F6D7D1",
+  },
+  {
+    title: "Due Soon",
+    value: dueSoonLoans.length,
+    icon: Clock3,
+    background: "#F9E8B5",
+  },
+  {
+    title: "Categories",
+    value: categories.size,
+    icon: Layers3,
+    background: "#DDD4F1",
+  },
+];
   return (
     <div className="space-y-8">
       {/* TOP HEADER */}
@@ -192,8 +228,8 @@ export default function Dashboard({ setActivePage }) {
           </h2>
 
           <span className="text-xs text-[#A29A90]">
-            Demo statistics
-          </span>
+  Current library overview
+</span>
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -376,10 +412,10 @@ export default function Dashboard({ setActivePage }) {
 
       {/* FOOTER NOTE */}
       <p className="text-xs text-[#A29A90]">
-        Prototype dashboard — statistics and book records
-        are sample data. Live information will be connected
-        to the backend later.
-      </p>
+  Book information is loaded from the library API when
+  available. Student borrowing activity is currently
+  stored locally for demonstration purposes.
+</p>
     </div>
   );
 }
