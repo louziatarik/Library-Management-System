@@ -8,6 +8,7 @@ import {
   Library,
   X,
   Sparkles,
+  Heart,
 } from "lucide-react";
 
 // ----------------------------------
@@ -142,6 +143,8 @@ function BookCover({ book }) {
 export default function BookCatalogue({
   books = [],
   onViewDetails,
+  wishlist = [],
+  onToggleWishlist,
 }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState(
@@ -459,6 +462,33 @@ export default function BookCatalogue({
                   key={`${book.id}-${book.cover || book.isbn}`}
                   book={book}
                 />
+
+                {/* WISHLIST BUTTON */}
+                <button
+                  type="button"
+                  onClick={() => onToggleWishlist?.(book.id)}
+                  aria-label={
+                    wishlist.includes(String(book.id))
+                      ? `Remove ${book.title} from wishlist`
+                      : `Add ${book.title} to wishlist`
+                  }
+                  aria-pressed={wishlist.includes(String(book.id))}
+                  title={
+                    wishlist.includes(String(book.id))
+                      ? "Remove from Wishlist"
+                      : "Add to Wishlist"
+                  }
+                  className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D3A843]"
+                >
+                  <Heart
+                    size={20}
+                    className={
+                      wishlist.includes(String(book.id))
+                        ? "fill-[#E45B65] text-[#E45B65]"
+                        : "text-[#625B55]"
+                    }
+                  />
+                </button>
 
                 {/* AVAILABILITY BADGE */}
                 <span

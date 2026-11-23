@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Library,
   History,
+  Heart,
   UserRound,
   LogOut,
   GraduationCap,
@@ -13,6 +14,7 @@ import {
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard },
   { name: "Book Catalogue", icon: Library },
+  { name: "My Wishlist", icon: Heart },
   { name: "My Loans", icon: History },
   { name: "My Profile", icon: UserRound }
 ];

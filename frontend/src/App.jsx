@@ -23,6 +23,10 @@ import {
   getStudentLoans,
   saveStudentLoans,
 } from "./services/demoLoans";
+import {
+  getStudentWishlist,
+  toggleWishlistBook,
+} from "./services/demoWishlist";
 import Sidebar from "./components/Sidebar";
 import AdminSidebar from "./components/AdminSidebar";
 
@@ -31,6 +35,7 @@ import BookCatalogue from "./pages/BookCatalogue";
 import BookDetails from "./pages/BookDetails";
 import MyLoans from "./pages/MyLoans";
 import MyProfile from "./pages/MyProfile";
+import MyWishlist from "./pages/MyWishlist";
 
 import LandingPage from "./pages/LandingPage";
 import PublicLibrary from "./pages/PublicLibrary";
@@ -52,6 +57,7 @@ const studentRoutes = {
   Dashboard: "/student/dashboard",
   "Book Catalogue": "/student/books",
   "My Loans": "/student/loans",
+  "My Wishlist": "/student/wishlist",
   "My Profile": "/student/profile",
 };
 
@@ -263,6 +269,14 @@ const [loans, setLoans] = useState(() => {
 });
 
 
+const [wishlist, setWishlist] = useState(() => {
+  const user = getDemoSession();
+
+  return user?.role === "student"
+    ? getStudentWishlist(user.id)
+    : [];
+});
+
 const [apiBooks, setApiBooks] = useState(null);
 
 useEffect(() => {
@@ -330,6 +344,8 @@ const roleSelectionMode =
       ? "Book Catalogue"
       : path === "/student/loans"
         ? "My Loans"
+        : path === "/student/wishlist"
+          ? "My Wishlist"
         : path === "/student/profile"
           ? "My Profile"
           : studentBookId
@@ -426,6 +442,11 @@ setLoans(
     ? getStudentLoans(result.user.id)
     : []
 );
+setWishlist(
+  result.user.role === "student"
+    ? getStudentWishlist(result.user.id)
+    : []
+);
   if (result.user.role === "admin") {
     navigate("/admin/dashboard");
   } else {
@@ -472,6 +493,7 @@ saveDemoSession(result.user);
 
 // Load this student's demo borrowing history.
 setLoans(getStudentLoans(result.user.id));
+setWishlist(getStudentWishlist(result.user.id));
 
 navigate("/student/dashboard");
 
@@ -498,6 +520,25 @@ navigate("/student/dashboard");
 
   const backToCatalogue = () => {
     navigate("/student/books");
+  };
+
+  // ----------------------------------
+  // TOGGLE BOOK WISHLIST
+  // ----------------------------------
+  const handleToggleWishlist = (bookId) => {
+    if (!demoUser || demoUser.role !== "student") {
+      openStudentLogin();
+      return;
+    }
+
+    if (bookId == null) return;
+
+    const updatedWishlist = toggleWishlistBook(
+      demoUser.id,
+      bookId
+    );
+
+    setWishlist(updatedWishlist);
   };
 
   // ----------------------------------
@@ -631,6 +672,8 @@ setLoans((previous) => {
           <BookCatalogue
             books={catalogueBooks}
             onViewDetails={openBookDetails}
+            wishlist={wishlist}
+            onToggleWishlist={handleToggleWishlist}
           />
         );
 
@@ -673,6 +716,16 @@ setLoans((previous) => {
           <MyLoans
             loans={loans}
             onReturn={handleReturn}
+          />
+        );
+
+      case "My Wishlist":
+        return (
+          <MyWishlist
+            books={catalogueBooks}
+            wishlist={wishlist}
+            onToggleWishlist={handleToggleWishlist}
+            onViewDetails={openBookDetails}
           />
         );
 
