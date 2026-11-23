@@ -152,3 +152,49 @@ export function getDemoSession() {
 export function clearDemoSession() {
   sessionStorage.removeItem(SESSION_KEY);
 }
+
+// ----------------------------------
+// DEMO STUDENT PROFILE UPDATES
+// ----------------------------------
+
+export function updateStudentProfile(studentId, changes) {
+  const accounts = getAccounts();
+
+  const index = accounts.findIndex(
+    (account) =>
+      account.id === studentId &&
+      account.role === "student"
+  );
+
+  if (index === -1) {
+    return { error: "Student account not found." };
+  }
+
+  const fullName = String(changes?.fullName ?? "").trim();
+  const department = String(changes?.department ?? "").trim();
+
+  if (fullName.length < 2 || fullName.length > 100) {
+    return {
+      error: "Full name must contain between 2 and 100 characters."
+    };
+  }
+
+  if (department.length > 100) {
+    return {
+      error: "Department must not exceed 100 characters."
+    };
+  }
+
+  const updatedAccount = {
+    ...accounts[index],
+    fullName,
+    department
+  };
+
+  accounts[index] = updatedAccount;
+  saveAccounts(accounts);
+
+  saveDemoSession(updatedAccount);
+
+  return { user: updatedAccount };
+}

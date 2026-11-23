@@ -15,6 +15,7 @@ import {
   loginDemo,
   saveDemoSession,
   getDemoSession,
+  updateStudentProfile,
 } from "./services/demoAuth";
 import { books } from "./data/books";
 import { fetchBooks } from "./services/booksApi";
@@ -500,6 +501,24 @@ navigate("/student/dashboard");
   };
 
   // ----------------------------------
+  // UPDATE STUDENT PROFILE
+  // ----------------------------------
+  const handleUpdateProfile = (changes) => {
+    if (!demoUser || demoUser.role !== "student") {
+      return { error: "Please log in as a student." };
+    }
+
+    const result = updateStudentProfile(demoUser.id, changes);
+
+    if (result.error) {
+      return result;
+    }
+
+    setDemoUser(result.user);
+    return result;
+  };
+
+  // ----------------------------------
   // BORROW BOOK
   // ----------------------------------
 
@@ -658,7 +677,13 @@ setLoans((previous) => {
         );
 
       case "My Profile":
-        return <MyProfile />;
+        return (
+          <MyProfile
+            student={demoUser}
+            loans={loans}
+            onUpdateProfile={handleUpdateProfile}
+          />
+        );
 
       default:
         return (

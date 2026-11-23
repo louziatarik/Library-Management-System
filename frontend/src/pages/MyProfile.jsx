@@ -1,4 +1,6 @@
 
+import { useState } from "react";
+
 import {
   UserRound,
   Mail,
@@ -58,8 +60,96 @@ function formatDate(dateString) {
   );
 }
 
-export default function MyProfile() {
-  const student = demoStudent;
+export default function MyProfile({
+  student: loggedInStudent,
+  loans = [],
+  onUpdateProfile
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDepartment, setEditDepartment] = useState("");
+  const [profileMessage, setProfileMessage] = useState(null);
+
+  const student = {
+    ...demoStudent,
+    ...loggedInStudent,
+    name: loggedInStudent?.fullName || loggedInStudent?.name || demoStudent.name,
+    email: loggedInStudent?.email || demoStudent.email,
+    studentId:
+      loggedInStudent?.studentId ||
+      loggedInStudent?.id ||
+      demoStudent.studentId,
+    role: "Student"
+  };
+
+  // ----------------------------------
+  // PROFILE EDITING
+  // ----------------------------------
+  const startEditing = () => {
+    setEditName(student.name);
+    setEditDepartment(
+      loggedInStudent?.department || ""
+    );
+    setProfileMessage(null);
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setProfileMessage(null);
+  };
+
+  const saveProfile = (event) => {
+    event.preventDefault();
+
+    if (typeof onUpdateProfile !== "function") {
+      setProfileMessage({
+        type: "error",
+        text: "Profile editing is currently unavailable."
+      });
+      return;
+    }
+
+    const result = onUpdateProfile({
+      fullName: editName,
+      department: editDepartment
+    });
+
+    if (result?.error) {
+      setProfileMessage({
+        type: "error",
+        text: result.error
+      });
+      return;
+    }
+
+    setIsEditing(false);
+    setProfileMessage({
+      type: "success",
+      text: "Your profile has been updated successfully."
+    });
+  };
+
+  const activeLoans = loans.filter(
+    (loan) => loan.status === "Active"
+  ).length;
+
+  const returnedBooks = loans.filter(
+    (loan) => loan.status === "Returned"
+  ).length;
+
+  const stats = demoStats.map((stat) => {
+    switch (stat.title) {
+      case "Active Loans":
+        return { ...stat, value: activeLoans };
+      case "Returned Books":
+        return { ...stat, value: returnedBooks };
+      case "Total Loans":
+        return { ...stat, value: loans.length };
+      default:
+        return stat;
+    }
+  });
 
   return (
     <div className="space-y-8">
@@ -116,13 +206,107 @@ export default function MyProfile() {
 
           {/* PERSONAL INFORMATION */}
           <div>
-            <h3 className="text-lg font-bold text-[#292929]">
-              Personal Information
-            </h3>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-bold text-[#292929]">
+                  Personal Information
+                </h3>
 
-            <p className="text-sm text-[#85817B] mt-1">
-              Your registered library account details.
-            </p>
+                <p className="text-sm text-[#85817B] mt-1">
+                  Your registered library account details.
+                </p>
+              </div>
+
+              {!isEditing && (
+                <button
+                  type="button"
+                  onClick={startEditing}
+                  className="rounded-xl bg-[#292929] px-5 py-3 text-sm font-semibold text-white hover:bg-[#454545] transition-colors"
+                >
+                  Edit Profile
+                </button>
+              )}
+            </div>
+
+            {profileMessage && (
+              <div
+                role="status"
+                className={`mt-5 rounded-xl px-4 py-3 text-sm font-medium ${
+                  profileMessage.type === "success"
+                    ? "bg-[#E9F4F0] text-[#27816B]"
+                    : "bg-[#FCE8E6] text-[#A33A32]"
+                }`}
+              >
+                {profileMessage.text}
+              </div>
+            )}
+
+            {isEditing && (
+              <form
+                onSubmit={saveProfile}
+                className="mt-6 rounded-2xl border border-[#EEEAE4] bg-[#FCFBF8] p-5 space-y-5"
+              >
+                <div>
+                  <label
+                    htmlFor="profile-full-name"
+                    className="block text-sm font-semibold text-[#292929] mb-2"
+                  >
+                    Full Name
+                  </label>
+
+                  <input
+                    id="profile-full-name"
+                    type="text"
+                    required
+                    minLength={2}
+                    maxLength={100}
+                    value={editName}
+                    onChange={(event) =>
+                      setEditName(event.target.value)
+                    }
+                    className="w-full rounded-xl border border-[#E5E0D8] bg-white px-4 py-3 text-sm text-[#292929] focus:border-[#D3A843] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="profile-department"
+                    className="block text-sm font-semibold text-[#292929] mb-2"
+                  >
+                    Department
+                  </label>
+
+                  <input
+                    id="profile-department"
+                    type="text"
+                    maxLength={100}
+                    value={editDepartment}
+                    onChange={(event) =>
+                      setEditDepartment(event.target.value)
+                    }
+                    placeholder="e.g. Computer Science"
+                    className="w-full rounded-xl border border-[#E5E0D8] bg-white px-4 py-3 text-sm text-[#292929] focus:border-[#D3A843] focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-[#292929] px-5 py-3 text-sm font-semibold text-white hover:bg-[#454545]"
+                  >
+                    Save Changes
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={cancelEditing}
+                    className="rounded-xl border border-[#E5E0D8] bg-white px-5 py-3 text-sm font-semibold text-[#625B55] hover:bg-[#F7F5F0]"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
 
@@ -173,7 +357,7 @@ export default function MyProfile() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {demoStats.map((stat) => {
+          {stats.map((stat) => {
             const Icon = stat.icon;
 
             return (
