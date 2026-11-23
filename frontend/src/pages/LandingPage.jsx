@@ -411,6 +411,8 @@ export default function LandingPage({
   onExplore,
   onLogin,
   onRegister,
+  user,
+  onDashboard,
 }) {
   return (
     <div className="min-h-screen overflow-hidden bg-[#F7F5F0] text-[#292929]">
@@ -480,9 +482,26 @@ export default function LandingPage({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={onLogin}
+          {user ? (
+            <>
+              <span className="rounded-full bg-[#E8F1ED] px-4 py-3 text-sm font-semibold text-[#123D30]">
+                Welcome, {user.name || "Student"}!
+              </span>
+              <button
+                type="button"
+                onClick={onDashboard}
+                className="inline-flex items-center gap-2 rounded-full bg-[#123D30] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#1B5946]"
+              >
+                <BookOpen size={17} />
+                My Dashboard
+                <ArrowRight size={16} />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onLogin}
             className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-[#123D30] transition hover:bg-[#E9E7DF]"
           >
             <LogIn size={17} />
@@ -497,6 +516,8 @@ export default function LandingPage({
             <UserPlus size={17} />
             Create Account
           </button>
+            </>
+          )}
 
           <button
             type="button"

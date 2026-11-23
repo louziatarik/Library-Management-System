@@ -1,4 +1,4 @@
-
+﻿
 import { useEffect, useState } from "react";
 import {
   useLocation,
@@ -702,14 +702,16 @@ setLoans((previous) => {
   // ----------------------------------
 
   if (isLanding) {
-    return (
-      <LandingPage
-        onExplore={openPublicLibrary}
-        onLogin={openRoleSelection}
-        onRegister={openCreateAccount}
-      />
-    );
-  }
+  return (
+    <LandingPage
+      onExplore={openPublicLibrary}
+      onLogin={openRoleSelection}
+      onRegister={openCreateAccount}
+      user={demoUser}
+      onDashboard={() => navigate("/student/dashboard")}
+    />
+  );
+}
 
   // ----------------------------------
   // 2. ROLE SELECTION
@@ -1013,3 +1015,4 @@ function AdminAccessMessage({
 }
 
 export default App;
+
