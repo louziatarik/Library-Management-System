@@ -262,7 +262,7 @@ const [loans, setLoans] = useState(() => {
 });
 
 
-const [apiBooks, setApiBooks] = useState([]);
+const [apiBooks, setApiBooks] = useState(null);
 
 useEffect(() => {
   let active = true;
@@ -287,7 +287,7 @@ useEffect(() => {
   };
 }, []);
 
-const libraryBooks = apiBooks.length > 0 ? apiBooks : books;
+const libraryBooks = apiBooks ?? books;
   const path = location.pathname;
   const query = new URLSearchParams(location.search);
 const roleSelectionMode =
