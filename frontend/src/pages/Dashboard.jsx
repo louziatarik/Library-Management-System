@@ -81,6 +81,8 @@ export default function Dashboard({
   books: catalogueBooks = [],
   loans = [],
 }) {
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
   const featuredBooks = catalogueBooks.slice(0, 4);
   const activeLoans = loans.filter(
   (loan) => loan.status === "Active"
@@ -103,8 +105,56 @@ const dueSoonLoans = activeLoans.filter((loan) => {
 
   return daysRemaining >= 0 && daysRemaining <= 5;
 });
+// ----------------------------------
+// DUE-DATE NOTIFICATIONS
+// ----------------------------------
 
+const notifications = activeLoans
+  .filter((loan) => loan.dueDate)
+  .map((loan) => {
+    const [year, month, day] = loan.dueDate
+      .split("-")
+      .map(Number);
+
+    const dueDate = new Date(year, month - 1, day);
+
+    const daysRemaining = Math.round(
+      (dueDate - today) / (1000 * 60 * 60 * 24)
+    );
+
+    if (!Number.isFinite(daysRemaining)) return null;
+
+    if (daysRemaining < 0) {
+      return {
+        id: loan.id,
+        title: loan.title || loan.bookTitle || "Borrowed book",
+        message: `${Math.abs(daysRemaining)} day(s) overdue`,
+        type: "overdue",
+        daysRemaining,
+      };
+    }
+
+    if (daysRemaining <= 5) {
+      return {
+        id: loan.id,
+        title: loan.title || loan.bookTitle || "Borrowed book",
+        message:
+          daysRemaining === 0
+            ? "Due today"
+            : `Due in ${daysRemaining} day(s)`,
+        type: "due-soon",
+        daysRemaining,
+      };
+    }
+
+    return null;
+  })
+  .filter(Boolean)
+  .sort((a, b) => a.daysRemaining - b.daysRemaining);
+
+const notificationCount = notifications.length;
 const availableBooks = catalogueBooks.filter(
+  
   (book) => book.available
 ).length;
 
@@ -171,15 +221,112 @@ const stats = [
             />
           </button>
 
-          <div
-            title="Notifications coming soon"
-            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#EEEAE4] bg-white"
-          >
-            <Bell
-              size={20}
-              className="text-[#292929]"
-            />
+          <div className="relative">
+  <button
+    type="button"
+    onClick={() => setNotificationsOpen((previous) => !previous)}
+    aria-label={`Notifications: ${notificationCount} alerts`}
+    aria-expanded={notificationsOpen}
+    className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-[#EEEAE4] bg-white transition hover:bg-[#F5C96A]"
+  >
+    <Bell size={20} className="text-[#292929]" />
+
+    {notificationCount > 0 && (
+      <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#D9534F] px-1 text-[10px] font-bold text-white">
+        {notificationCount > 9 ? "9+" : notificationCount}
+      </span>
+    )}
+  </button>
+
+  {notificationsOpen && (
+    <div className="absolute right-0 top-14 z-50 w-[340px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-[#EEEAE4] bg-white shadow-[0_18px_50px_rgba(18,61,48,0.16)]">
+      <div className="flex items-center justify-between border-b border-[#EEEAE4] px-5 py-4">
+        <div>
+          <h3 className="text-base font-bold text-[#123D30]">
+            Notifications
+          </h3>
+          <p className="mt-1 text-xs text-[#85817B]">
+            {notificationCount === 0
+              ? "You're all caught up!"
+              : `${notificationCount} loan alert${notificationCount === 1 ? "" : "s"}`}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setNotificationsOpen(false)}
+          aria-label="Close notifications"
+          className="rounded-lg px-2 py-1 text-lg text-[#85817B] hover:bg-[#F7F5F0]"
+        >
+          ?
+        </button>
+      </div>
+
+      <div className="max-h-80 overflow-y-auto">
+        {notifications.length === 0 ? (
+          <div className="px-5 py-10 text-center">
+            <Bell size={30} className="mx-auto mb-3 text-[#27816B]" />
+            <p className="font-semibold text-[#123D30]">
+              All caught up!
+            </p>
+            <p className="mt-2 text-xs text-[#85817B]">
+              No overdue books or upcoming return deadlines.
+            </p>
           </div>
+        ) : (
+          notifications.map((notification, index) => (
+            <div
+              key={`${notification.id}-${index}`}
+              className="flex gap-3 border-b border-[#F1EEE8] px-5 py-4 last:border-b-0"
+            >
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                  notification.type === "overdue"
+                    ? "bg-[#FCE8E6] text-[#D9534F]"
+                    : "bg-[#FFF2D4] text-[#B7791F]"
+                }`}
+              >
+                <Clock3 size={19} />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-[#292929]">
+                  {notification.type === "overdue"
+                    ? "Overdue Book"
+                    : "Book Due Soon"}
+                </p>
+                <p className="mt-1 break-words text-sm text-[#555]">
+                  {notification.title}
+                </p>
+                <p
+                  className={`mt-1 text-xs font-semibold ${
+                    notification.type === "overdue"
+                      ? "text-[#D9534F]"
+                      : "text-[#B7791F]"
+                  }`}
+                >
+                  {notification.message}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => {
+          setNotificationsOpen(false);
+          setActivePage("My Loans");
+        }}
+        className="flex w-full items-center justify-center gap-2 border-t border-[#EEEAE4] px-5 py-4 text-sm font-bold text-[#123D30] transition hover:bg-[#F7F5F0]"
+      >
+        View My Loans
+        <ArrowRight size={16} />
+      </button>
+    </div>
+  )}
+</div>
         </div>
       </header>
 
