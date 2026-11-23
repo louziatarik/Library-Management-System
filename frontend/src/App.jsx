@@ -342,19 +342,13 @@ const roleSelectionMode =
   // BOOK AVAILABILITY
   // ----------------------------------
 
-  const catalogueBooks = libraryBooks.map((book) => {
-    const hasActiveLoan = loans.some(
-      (loan) =>
-        String(loan.bookId) === String(book.id) &&
-        loan.status === "Active"
-    );
-
-    return {
-      ...book,
-      available:
-        Boolean(book.available) && !hasActiveLoan,
-    };
-  });
+  const catalogueBooks = libraryBooks.map((book) => ({
+  ...book,
+  available:
+    book.availableCopies != null
+      ? Number(book.availableCopies) > 0
+      : Boolean(book.available),
+}));
 
   const publicBook = publicBookId
     ? catalogueBooks.find(
