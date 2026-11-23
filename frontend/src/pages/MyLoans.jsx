@@ -252,10 +252,17 @@ export default function MyLoans({
     }
 
     if (filter === "Returned") {
-      return loan.status === "Returned";
-    }
+  return loan.status === "Returned";
+}
 
-    return true;
+if (filter === "Overdue") {
+  return (
+    loan.status === "Active" &&
+    daysUntil(loan.dueDate) < 0
+  );
+}
+
+return true;
   });
 
   const stats = [
@@ -379,10 +386,11 @@ export default function MyLoans({
           {/* FILTERS */}
           <div className="flex flex-wrap gap-2">
             {[
-              "All Loans",
-              "Active",
-              "Returned",
-            ].map((item) => (
+  "All Loans",
+  "Active",
+  "Overdue",
+  "Returned",
+].map((item) => (
               <button
                 key={item}
                 type="button"
