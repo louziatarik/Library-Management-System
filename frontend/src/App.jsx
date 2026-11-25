@@ -1,4 +1,4 @@
-﻿
+
 import { useEffect, useState } from "react";
 import {
   useLocation,
@@ -10,13 +10,9 @@ import {
   LogIn,
   UserPlus,
 } from "lucide-react";
-import {
-  registerStudent,
-  loginDemo,
-  saveDemoSession,
-  getDemoSession,
-  updateStudentProfile,
-} from "./services/demoAuth";
+import { getDemoSession, updateStudentProfile } from "./services/demoAuth";
+import { login as apiLogin, register as apiRegister, getCurrentUser, logout, forgotPassword, resetPassword } from "./services/authService";
+import { getAccessToken } from "./services/tokenStorage";
 import { books } from "./data/books";
 import { fetchBooks } from "./services/booksApi";
 import {
@@ -42,6 +38,8 @@ import PublicLibrary from "./pages/PublicLibrary";
 import RoleSelection from "./pages/RoleSelection";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageBooks from "./pages/admin/ManageBooks";
@@ -259,25 +257,44 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
- const [demoUser, setDemoUser] = useState(getDemoSession);
+ const [demoUser, setDemoUser] = useState(null);
 
-const [loans, setLoans] = useState(() => {
-  const user = getDemoSession();
-  return user?.role === "student"
-    ? getStudentLoans(user.id)
-    : [];
-});
+const [loans, setLoans] = useState([]);
 
 
-const [wishlist, setWishlist] = useState(() => {
-  const user = getDemoSession();
-
-  return user?.role === "student"
-    ? getStudentWishlist(user.id)
-    : [];
-});
+const [wishlist, setWishlist] = useState([]);
 
 const [apiBooks, setApiBooks] = useState(null);
+
+useEffect(() => {
+  let active = true;
+
+  async function restoreSession() {
+    if (!getAccessToken()) return;
+
+    try {
+      const user = await getCurrentUser();
+      if (!active) return;
+
+      setDemoUser(user);
+      setLoans(user.role === "student" ? getStudentLoans(user.id) : []);
+      setWishlist(user.role === "student" ? getStudentWishlist(user.id) : []);
+    } catch {
+      logout();
+      if (active) {
+        setDemoUser(null);
+        setLoans([]);
+        setWishlist([]);
+      }
+    }
+  }
+
+  restoreSession();
+
+  return () => {
+    active = false;
+  };
+}, []);
 
 useEffect(() => {
   let active = true;
@@ -316,6 +333,8 @@ const roleSelectionMode =
   const isRoleSelection = path === "/choose-role";
   const isLogin = path === "/login";
   const isRegister = path === "/register";
+  const isForgotPassword = path === "/forgot-password";
+  const isResetPassword = path === "/reset-password";
   const isExplore = path === "/explore";
 
   const isAdmin = path.startsWith("/admin");
@@ -416,61 +435,52 @@ const goHome = () => {
   navigate("/");
 };
 
+const handleLogout = () => {
+  logout();
+  setDemoUser(null);
+  setLoans([]);
+  setWishlist([]);
+  navigate("/");
+};
+
 
   // ----------------------------------
   // DEMO AUTHENTICATION
   // ----------------------------------
 
   
-const handleLogin = ({ email, password }) => {
-  const role = requestedRole;
+const handleLogin = async ({ email, password }) => {
+  try {
+    const result = await apiLogin({
+      email,
+      password,
+      role: requestedRole,
+    });
 
-  const result = loginDemo({
-    email,
-    password,
-    role,
-  });
+    setDemoUser(result.user);
+    setLoans(result.user.role === "student" ? getStudentLoans(result.user.id) : []);
+    setWishlist(result.user.role === "student" ? getStudentWishlist(result.user.id) : []);
 
-  if (result.error) {
-    return { error: result.error };
+    navigate(result.user.role === "admin" ? "/admin/dashboard" : "/student/dashboard");
+
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
   }
-
-  setDemoUser(result.user);
-saveDemoSession(result.user);
-setLoans(
-  result.user.role === "student"
-    ? getStudentLoans(result.user.id)
-    : []
-);
-setWishlist(
-  result.user.role === "student"
-    ? getStudentWishlist(result.user.id)
-    : []
-);
-  if (result.user.role === "admin") {
-    navigate("/admin/dashboard");
-  } else {
-    navigate("/student/dashboard");
-  }
-
-  return { success: true };
 };
 
 
   
 
-const handleRegister = ({
+const handleRegister = async ({
   fullName,
   email,
   password,
   role = "student",
 }) => {
-  // Administrator registration requires backend approval.
-  // Never create an active administrator through demoAuth.
   if (role === "admin") {
     return {
-      error:
-        "Administrator registration is not available until the backend approval system is connected.",
+      error: "Administrator registration is restricted. Please contact the system administrator.",
     };
   }
 
@@ -478,26 +488,23 @@ const handleRegister = ({
     return { error: "Invalid account type." };
   }
 
-  const result = registerStudent({
-    fullName,
-    email,
-    password,
-  });
+  try {
+    const result = await apiRegister({
+      fullName,
+      email,
+      password,
+    });
 
-  if (result.error) {
-    return { error: result.error };
+    setDemoUser(result.user);
+    setLoans(getStudentLoans(result.user.id));
+    setWishlist(getStudentWishlist(result.user.id));
+
+    navigate("/student/dashboard");
+
+    return { success: true };
+  } catch (error) {
+    return { error: error.message };
   }
-
-  setDemoUser(result.user);
-saveDemoSession(result.user);
-
-// Load this student's demo borrowing history.
-setLoans(getStudentLoans(result.user.id));
-setWishlist(getStudentWishlist(result.user.id));
-
-navigate("/student/dashboard");
-
-  return { success: true };
 };
 
 
@@ -871,6 +878,24 @@ if (isRoleSelection) {
   // 5. LOGIN
   // ----------------------------------
 
+  if (isForgotPassword) {
+    return (
+      <ForgotPassword
+        onSubmit={forgotPassword}
+        onBack={() => navigate(`/login?role=${requestedRole}`)}
+      />
+    );
+  }
+
+  if (isResetPassword) {
+    return (
+      <ResetPassword
+        onSubmit={resetPassword}
+        onBack={openStudentLogin}
+      />
+    );
+  }
+
   if (isLogin) {
   return (
     <Login
@@ -878,6 +903,7 @@ if (isRoleSelection) {
       onLogin={handleLogin}
       onRegister={openCreateAccount}
       onBack={openRoleSelection}
+      onForgotPassword={() => navigate(`/forgot-password?role=${requestedRole}`)}
     />
   );
 }
@@ -925,6 +951,7 @@ if (isRegister) {
             handleStudentNavigation
           }
           onGoHome={goHome}
+          onLogout={handleLogout}
         />
 
         <main className="flex-1 min-w-0 p-6 md:p-10">
@@ -963,6 +990,7 @@ if (isRegister) {
             handleAdminNavigation
           }
           onGoHome={goHome}
+          onLogout={handleLogout}
         />
 
         <main className="flex-1 min-w-0 p-6 md:p-10">

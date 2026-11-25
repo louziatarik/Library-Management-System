@@ -16,6 +16,7 @@ export default function Login({
   onLogin,
   onRegister,
   onBack,
+  onForgotPassword,
 }) {
   const isAdmin = role === "admin";
 
@@ -207,6 +208,15 @@ export default function Login({
               </div>
             </div>
 
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                className="text-sm font-semibold text-[#123D30] transition-colors hover:text-[#B7791F]"
+              >
+                Forgot Password?
+              </button>
+            </div>
             {error && (
               <p role="alert" className="text-sm text-red-600">
                 {error}

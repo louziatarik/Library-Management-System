@@ -22,7 +22,8 @@ const menuItems = [
 export default function AdminSidebar({
   activePage,
   setActivePage,
-  onGoHome
+  onGoHome,
+  onLogout
 }) {
   return (
     <aside className="w-64 shrink-0 min-h-screen bg-white border-r border-[#EEEAE4] flex flex-col">
@@ -122,11 +123,7 @@ export default function AdminSidebar({
               </p>
             </div>
 
-            <button
-              disabled
-              title="Logout will be available after authentication is implemented"
-              className="text-[#B5B0AA] cursor-not-allowed"
-            >
+            <button type="button" onClick={onLogout} title="Log out" aria-label="Log out" className="text-[#85817B] hover:text-red-600 transition-colors">
               <LogOut size={18} />
             </button>
           </div>

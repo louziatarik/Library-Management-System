@@ -1,42 +1,46 @@
-
 import { apiRequest } from "./api";
+import { saveAccessToken, clearAccessToken } from "./tokenStorage";
 
-// Provisional authentication endpoints.
-// Confirm paths and request formats with Nada.
-const AUTH_ENDPOINTS = {
-  login: "/auth/login",
-  register: "/auth/register",
-  me: "/auth/me",
-  logout: "/auth/logout"
-};
-
-// Log in with user credentials.
-// Response format depends on the backend.
 export async function login(credentials) {
-  return apiRequest(AUTH_ENDPOINTS.login, {
+  const result = await apiRequest("/api/auth/login", {
     method: "POST",
     body: JSON.stringify(credentials)
   });
+
+  saveAccessToken(result.token);
+  return result;
 }
 
-// Register a new student account.
 export async function register(userData) {
-  return apiRequest(AUTH_ENDPOINTS.register, {
+  const result = await apiRequest("/api/auth/register", {
     method: "POST",
     body: JSON.stringify(userData)
   });
+
+  saveAccessToken(result.token);
+  return result;
 }
 
-// Retrieve the authenticated user's profile.
 export async function getCurrentUser() {
-  return apiRequest(AUTH_ENDPOINTS.me, {
+  return apiRequest("/api/auth/me", {
     method: "GET"
   });
 }
 
-// Log out the authenticated user.
-export async function logout() {
-  return apiRequest(AUTH_ENDPOINTS.logout, {
-    method: "POST"
+export async function forgotPassword(email) {
+  return apiRequest("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email })
   });
+}
+
+export async function resetPassword(token, newPassword) {
+  return apiRequest("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, newPassword })
+  });
+}
+
+export function logout() {
+  clearAccessToken();
 }
